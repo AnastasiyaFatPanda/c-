@@ -88,12 +88,12 @@ class Program
 
     static List<KeyValuePair<char, int>> CountChars(string input)
     {
-        var chars = input
+        List<char> chars = input
             .Distinct()
             .OrderBy(c => c)
             .ToList();
 
-        var result = chars
+        IEnumerable<KeyValuePair<char, int>> result = chars
             .Select(c => new KeyValuePair<char, int>(c, input.Count(ch => ch == c)));
 
         Console.WriteLine($"\nCheck word: {input}");
