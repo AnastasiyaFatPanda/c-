@@ -21,13 +21,21 @@ class Program
         List<KeyValuePair<char, int>> countedAnother = CountChars(anotherInput);
 
         int attempts = 1;
-        while (IsMatch(countedInitial, countedAnother))
+        int maxNumOfAttempts = 10;
+        while (IsMatch(countedInitial, countedAnother) && attempts < maxNumOfAttempts)
         {
             Console.Write("Enter word number {0} to compare: ", ++attempts);
             anotherInput = Console.ReadLine() ?? "";
             if (!CheckInput(anotherInput)) return;
             countedAnother = CountChars(anotherInput);
         }
+
+        if (attempts == maxNumOfAttempts)
+        {
+            StyledMessage("Too many attempts");
+            return;
+        }
+
 
         StyledMessage("Incorrect input: letters do not match");
         return;
@@ -73,7 +81,7 @@ class Program
         return countedAnother.All((anotherKeyValue) =>
         {
             KeyValuePair<char, int> initialForLetter = countedInitial.Find(initialPair => initialPair.Key == anotherKeyValue.Key);
-            char? anotherKey= anotherKeyValue.Key;
+            char? anotherKey = anotherKeyValue.Key;
             int? initialValueForLetter = initialForLetter.Value;
 
             if (initialValueForLetter == null || initialValueForLetter < anotherKeyValue.Value)
