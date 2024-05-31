@@ -70,7 +70,20 @@ class Program
 
     static bool IsMatch(List<KeyValuePair<char, int>> countedInitial, List<KeyValuePair<char, int>> countedAnother)
     {
-        return countedInitial.All(initialKeyValue => countedAnother.Contains(initialKeyValue));
+        return countedAnother.All((anotherKeyValue) =>
+        {
+            KeyValuePair<char, int> initialForLetter = countedInitial.Find(initialPair => initialPair.Key == anotherKeyValue.Key);
+            char? anotherKey= anotherKeyValue.Key;
+            int? initialValueForLetter = initialForLetter.Value;
+
+            if (initialValueForLetter == null || initialValueForLetter < anotherKeyValue.Value)
+            {
+                StyledMessage($"\nInitial word contains {anotherKey} letter {initialValueForLetter} times, when a new word contains {anotherKeyValue.Value}");
+                return false;
+            }
+
+            return true;
+        });
     }
 
     static List<KeyValuePair<char, int>> CountChars(string input)
@@ -83,7 +96,7 @@ class Program
         var result = chars
             .Select(c => new KeyValuePair<char, int>(c, input.Count(ch => ch == c)));
 
-        Console.WriteLine($"\n\n Check word: {input}");
+        Console.WriteLine($"\nCheck word: {input}");
         foreach (KeyValuePair<char, int> person in result)
         {
             Console.WriteLine($"{person}");
