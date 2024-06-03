@@ -10,43 +10,56 @@ class Program
         Console.Write("Enter initial word: ");
         string initialInput = Console.ReadLine() ?? "";
 
-        if (!CheckInput(initialInput)) return;
+        if (!CheckInitialInput(initialInput)) return;
 
-        Console.Write("Enter another one to compare: ");
-        string anotherInput = Console.ReadLine() ?? "";
+        int wordNumber = 0;
+        int attempts = 0;
+        const int maxNumberOfAttempts = 3;
+        List<string> usedWords = new List<string> { initialInput };
 
-        if (!CheckInput(anotherInput)) return;
-
-        List<KeyValuePair<char, int>> countedInitial = CountChars(initialInput);
-        List<KeyValuePair<char, int>> countedAnother = CountChars(anotherInput);
-
-        int attempts = 1;
-        int maxNumOfAttempts = 10;
-        while (IsMatch(countedInitial, countedAnother) && attempts < maxNumOfAttempts)
+        while (attempts < maxNumberOfAttempts)
         {
-            Console.Write("Enter word number {0} to compare: ", ++attempts);
-            anotherInput = Console.ReadLine() ?? "";
-            if (!CheckInput(anotherInput)) return;
-            countedAnother = CountChars(anotherInput);
+            Console.Write("\nEnter word number {0} to compare: ", ++wordNumber);
+            string anotherInput = Console.ReadLine() ?? "";
+
+            // check a new word
+            if (!EmptyInput(anotherInput))
+            {
+                attempts++;
+            }
+            // if the word has been used
+            else if (usedWords.Any((word) => word == anotherInput))
+            {
+                string listOfWords = String.Join(", ", usedWords);
+                StyledMessage($"You cannot use the same word twice! \n\n Repeated word: {anotherInput} \n List of all words: {listOfWords}");
+                attempts++;
+            }
+            else
+            {
+                List<KeyValuePair<char, int>> countedInitial = CountChars(initialInput);
+                List<KeyValuePair<char, int>> countedAnother = CountChars(anotherInput);
+
+                // check the letters
+                if (!IsMatch(countedInitial, countedAnother))
+                {
+                    attempts++;
+                }
+                else
+                {
+                    usedWords.Add(anotherInput);
+                }
+            }
         }
 
-        if (attempts == maxNumOfAttempts)
-        {
-            StyledMessage("Too many attempts");
-            return;
-        }
-
-
-        StyledMessage("Incorrect input: letters do not match");
+        StyledMessage($"You entered incorrect words the maximum number of times ({maxNumberOfAttempts} times). The end.", true);
         return;
     }
 
-    static bool CheckInput(string input)
+    static bool CheckInitialInput(string input)
     {
         // empty
-        if (input.Length == 0)
+        if (!EmptyInput(input))
         {
-            StyledMessage("You cannot enter an empty word!");
             return false;
         }
 
@@ -67,11 +80,23 @@ class Program
         return true;
     }
 
-
-    static void StyledMessage(string message)
+    static bool EmptyInput(string input)
     {
-        Console.BackgroundColor = ConsoleColor.Red;
-        Console.ForegroundColor = ConsoleColor.White;
+        // empty
+        if (input.Length == 0)
+        {
+            StyledMessage("You cannot enter an empty word!");
+            return false;
+        }
+
+        return true;
+    }
+
+
+    static void StyledMessage(string message, bool end = false)
+    {
+        Console.BackgroundColor = end ? ConsoleColor.Red : ConsoleColor.Yellow;
+        Console.ForegroundColor = end ? ConsoleColor.White : ConsoleColor.DarkYellow;
         Console.WriteLine(message);
         Console.ResetColor();
     }
@@ -79,19 +104,19 @@ class Program
     static bool IsMatch(List<KeyValuePair<char, int>> countedInitial, List<KeyValuePair<char, int>> countedAnother)
     {
         return countedAnother.All((anotherKeyValue) =>
-        {
-            KeyValuePair<char, int> initialForLetter = countedInitial.Find(initialPair => initialPair.Key == anotherKeyValue.Key);
-            char? anotherKey = anotherKeyValue.Key;
-            int? initialValueForLetter = initialForLetter.Value;
-
-            if (initialValueForLetter == null || initialValueForLetter < anotherKeyValue.Value)
             {
-                StyledMessage($"\nInitial word contains {anotherKey} letter {initialValueForLetter} times, when a new word contains {anotherKeyValue.Value}");
-                return false;
-            }
+                KeyValuePair<char, int> initialForLetter = countedInitial.Find(initialPair => initialPair.Key == anotherKeyValue.Key);
+                char? anotherKey = anotherKeyValue.Key;
+                int? initialValueForLetter = initialForLetter.Value;
 
-            return true;
-        });
+                if (initialValueForLetter == null || initialValueForLetter < anotherKeyValue.Value)
+                {
+                    StyledMessage($"\nInitial word contains {anotherKey} letter {initialValueForLetter} times, when a new word contains {anotherKeyValue.Value}");
+                    return false;
+                }
+
+                return true;
+            });
     }
 
     static List<KeyValuePair<char, int>> CountChars(string input)
@@ -103,12 +128,6 @@ class Program
 
         IEnumerable<KeyValuePair<char, int>> result = chars
             .Select(c => new KeyValuePair<char, int>(c, input.Count(ch => ch == c)));
-
-        Console.WriteLine($"\nCheck word: {input}");
-        foreach (KeyValuePair<char, int> person in result)
-        {
-            Console.WriteLine($"{person}");
-        }
 
         return result.ToList();
     }
