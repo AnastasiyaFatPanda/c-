@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+enum MessageType
+{
+    ERROR,
+    WARNING
+}
+
 class Program
 {
     static void Main()
@@ -40,7 +46,7 @@ class Program
                 List<KeyValuePair<char, int>> countedAnother = CountChars(anotherInput);
 
                 // check the letters
-                if (!IsMatch(countedInitial, countedAnother))
+                if (!IsMatch(initialInput, anotherInput))
                 {
                     attempts++;
                 }
@@ -51,7 +57,7 @@ class Program
             }
         }
 
-        StyledMessage($"You entered incorrect words the maximum number of times ({maxNumberOfAttempts} times). The end.", true);
+        StyledMessage($"You entered incorrect words the maximum number of times ({maxNumberOfAttempts} times). The end.", MessageType.ERROR);
         return;
     }
 
@@ -93,16 +99,19 @@ class Program
     }
 
 
-    static void StyledMessage(string message, bool end = false)
+    static void StyledMessage(string message, MessageType type = MessageType.WARNING)
     {
-        Console.BackgroundColor = end ? ConsoleColor.Red : ConsoleColor.Yellow;
-        Console.ForegroundColor = end ? ConsoleColor.White : ConsoleColor.DarkYellow;
+        Console.BackgroundColor = type == MessageType.ERROR ? ConsoleColor.Red : ConsoleColor.Yellow;
+        Console.ForegroundColor = type == MessageType.ERROR ? ConsoleColor.White : ConsoleColor.DarkYellow;
         Console.WriteLine(message);
         Console.ResetColor();
     }
 
-    static bool IsMatch(List<KeyValuePair<char, int>> countedInitial, List<KeyValuePair<char, int>> countedAnother)
+    static bool IsMatch(string initialInput, string anotherInput)
     {
+        List<KeyValuePair<char, int>> countedInitial = CountChars(initialInput);
+        List<KeyValuePair<char, int>> countedAnother = CountChars(anotherInput);
+
         return countedAnother.All((anotherKeyValue) =>
             {
                 KeyValuePair<char, int> initialForLetter = countedInitial.Find(initialPair => initialPair.Key == anotherKeyValue.Key);
