@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 
@@ -18,7 +17,6 @@ class Program
         string path = currentDirectory + fileName;
         FileInfo fileInfo = new FileInfo(path);
         Dictionary<string, int> peopleDictionary = new Dictionary<string, int>();
-
 
         if (fileInfo.Exists)
         {
@@ -40,36 +38,16 @@ class Program
 
         try
         {
+            Console.CancelKeyPress += (sender, args) =>
+            {
+                OnExit(sender, args, peopleDictionary, gameData, path);
+            };
             StartGame(gameData, peopleDictionary);
         }
         catch (Exception ex)
         {
             Utility.StyledMessage(ex.ToString(), Utility.MessageType.ERROR);
-
-            if (peopleDictionary.ContainsKey(gameData.PlayerFirst.PlayerName))
-                peopleDictionary[gameData.PlayerFirst.PlayerName] = gameData.Winner == gameData.PlayerFirst.PlayerName
-                    ? ++peopleDictionary[gameData.PlayerFirst.PlayerName]
-                    : peopleDictionary[gameData.PlayerFirst.PlayerName];
-            else
-                peopleDictionary.Add(gameData.PlayerFirst.PlayerName, gameData.Winner == gameData.PlayerFirst.PlayerName ? 1 : 0);
-
-            if (peopleDictionary.ContainsKey(gameData.PlayerSecond.PlayerName))
-                peopleDictionary[gameData.PlayerSecond.PlayerName] = gameData.Winner == gameData.PlayerSecond.PlayerName
-                   ? ++peopleDictionary[gameData.PlayerSecond.PlayerName]
-                   : peopleDictionary[gameData.PlayerSecond.PlayerName];
-            else
-                peopleDictionary.Add(gameData.PlayerSecond.PlayerName, gameData.Winner == gameData.PlayerSecond.PlayerName ? 1 : 0);
-
-
-            string json = JsonConvert.SerializeObject(peopleDictionary, Formatting.Indented);
-            // write data into the file
-            await File.WriteAllTextAsync(path, json);
-            // // дозапись в конец файла
-            // await File.AppendAllTextAsync(path, "\nHello work");
-
-            // чтение файла
-            string fileText = await File.ReadAllTextAsync(path);
-            Console.WriteLine(fileText);
+            WriteScoreIntoFile(peopleDictionary, gameData, path);
         }
     }
     static void StartGame(GameData gameData, Dictionary<string, int> peopleDictionary)
@@ -80,8 +58,6 @@ class Program
         if (!CheckInitialInput(initialInput)) return;
 
         int wordNumber = 0;
-        // int attempts = 0;
-        // const int maxNumberOfAttempts = 3;
         List<string> usedWords = new List<string> { initialInput };
 
         while (gameData.PlayerFirst.ErrorAttempts < MaxNumberOfErrorAttempts && gameData.PlayerSecond.ErrorAttempts < MaxNumberOfErrorAttempts)
@@ -91,26 +67,56 @@ class Program
             EnterWord(initialInput, gameData.PlayerFirst, usedWords, attemptNumber, peopleDictionary, gameData.PlayerSecond.PlayerName, gameData);
             EnterWord(initialInput, gameData.PlayerSecond, usedWords, attemptNumber, peopleDictionary, gameData.PlayerFirst.PlayerName, gameData);
         }
-
-        // string errorMessage = $"You entered incorrect words the maximum number of times ({MaxNumberOfAttempts} times). The end.";
-        // Utility.ThrowCustomException(errorMessage);
     }
 
-    static void ReadFileScore()
+    static void OnExit(object sender, ConsoleCancelEventArgs args, Dictionary<string, int> peopleDictionary, GameData gameData, string path)
     {
+        Utility.StyledMessage("The player suddenly disappeared...", Utility.MessageType.ERROR);
+        WriteScoreIntoFile(peopleDictionary, gameData, path);
+
+        // cancel closing
+        // args.Cancel = true;
+    }
+
+    static async void WriteScoreIntoFile(Dictionary<string, int> peopleDictionary, GameData gameData, string path)
+    {
+        if (peopleDictionary.ContainsKey(gameData.PlayerFirst.PlayerName))
+            peopleDictionary[gameData.PlayerFirst.PlayerName] = gameData.Winner == gameData.PlayerFirst.PlayerName
+                ? ++peopleDictionary[gameData.PlayerFirst.PlayerName]
+                : peopleDictionary[gameData.PlayerFirst.PlayerName];
+        else
+            peopleDictionary.Add(gameData.PlayerFirst.PlayerName, gameData.Winner == gameData.PlayerFirst.PlayerName ? 1 : 0);
+
+        if (peopleDictionary.ContainsKey(gameData.PlayerSecond.PlayerName))
+            peopleDictionary[gameData.PlayerSecond.PlayerName] = gameData.Winner == gameData.PlayerSecond.PlayerName
+               ? ++peopleDictionary[gameData.PlayerSecond.PlayerName]
+               : peopleDictionary[gameData.PlayerSecond.PlayerName];
+        else
+            peopleDictionary.Add(gameData.PlayerSecond.PlayerName, gameData.Winner == gameData.PlayerSecond.PlayerName ? 1 : 0);
+
+
+        string json = JsonConvert.SerializeObject(peopleDictionary, Formatting.Indented);
+        // write data into the file
+        await File.WriteAllTextAsync(path, json);
+        // write data at the end of the file
+        // await File.AppendAllTextAsync(path, "\nHello work");
+
+        // reading the file
+        string fileText = await File.ReadAllTextAsync(path);
+        Console.WriteLine(fileText);
 
     }
 
     static bool EnterWord(string initialInput, PlayerData player, List<string> usedWords, int attemptNumber, Dictionary<string, int> peopleDictionary, string anotherPlayer, GameData gameData)
     {
+        gameData.Winner = anotherPlayer;
         if (player.ErrorAttempts >= MaxNumberOfErrorAttempts)
         {
-            string errorMessage = $"Player ${player.PlayerName} entered incorrect words the maximum number of times ({player.ErrorAttempts} times). The end.";
-            gameData.Winner = anotherPlayer;
+            string errorMessage = $"Player {player.PlayerName} entered incorrect words the maximum number of times ({player.ErrorAttempts} times). The end.";
             Utility.ThrowCustomException(errorMessage);
         }
 
-        Console.Write($"\nUser ${player.PlayerName} Enter word number {attemptNumber} to compare: ");
+        Console.Write($"\nUser {player.PlayerName} Enter word number {attemptNumber} to compare: ");
         string newInput = Console.ReadLine() ?? "";
         string listOfUsedWords = String.Join(", ", usedWords);
 
@@ -124,24 +130,27 @@ class Program
             switch (newInput)
             {
                 case Commands.SCORE:
-                    string scoreCurrentPlayers = $"Player ${player.PlayerName} won $ {peopleDictionary[player.PlayerName]} times, and Player ${anotherPlayer} won $ {peopleDictionary[anotherPlayer]} times";
+                    int firstScore = peopleDictionary.ContainsKey(player.PlayerName) ? peopleDictionary[player.PlayerName] : 0;
+                    int secondScore = peopleDictionary.ContainsKey(anotherPlayer) ? peopleDictionary[anotherPlayer] : 0;
+                    string scoreCurrentPlayers =
+                        $"Player {player.PlayerName} won {firstScore} times \nPlayer {anotherPlayer} won {secondScore} times";
                     Utility.StyledMessage(scoreCurrentPlayers, Utility.MessageType.INFO);
                     break;
                 case Commands.SHOW_WORDS:
                     Utility.StyledMessage(listOfUsedWords, Utility.MessageType.INFO);
                     break;
                 case Commands.TOTAL_SCORE:
-                    string totalScoreCurrentPlayers = "";
+                    string totalScoreCurrentPlayers = "Total Score:";
                     foreach (KeyValuePair<string, int> kvp in peopleDictionary)
                     {
-                        totalScoreCurrentPlayers += $"Player {kvp.Key} won {kvp.Value} times; \n";
+                        totalScoreCurrentPlayers += $" \nPlayer {kvp.Key} won {kvp.Value} times;";
                     }
 
                     if (!peopleDictionary.ContainsKey(player.PlayerName))
-                        totalScoreCurrentPlayers += $"Player {player.PlayerName} won 0 times; \n";
+                        totalScoreCurrentPlayers += $" \nPlayer {player.PlayerName} won 0 times;";
 
                     if (!peopleDictionary.ContainsKey(anotherPlayer))
-                        totalScoreCurrentPlayers += $"Player {anotherPlayer} won 0 times; \n";
+                        totalScoreCurrentPlayers += $" \nPlayer {anotherPlayer} won 0 times;";
 
                     Utility.StyledMessage(totalScoreCurrentPlayers, Utility.MessageType.INFO);
                     break;
@@ -215,7 +224,7 @@ class Program
 
                 if (initialValueForLetter == null || initialValueForLetter < anotherKeyValue.Value)
                 {
-                    Utility.StyledMessage($"\nInitial word contains {anotherKey} letter {initialValueForLetter} times, when a new word contains {anotherKeyValue.Value}");
+                    Utility.StyledMessage($"\nInitial word contains '{anotherKey}' letter {initialValueForLetter} times, when a new word contains {anotherKeyValue.Value}");
                     return false;
                 }
 

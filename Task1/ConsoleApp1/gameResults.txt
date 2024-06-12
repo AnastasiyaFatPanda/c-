@@ -1,8 +1,8 @@
 {
-  "werw": 5,
-  "qweqwrqwr": 1,
-  "werwerwergqergq": 1,
-  "jhk": 2,
-  "ydrtfyguhij": 1,
-  "wwqeqe": 0
+  "u1": 5,
+  "qwe": 1,
+  "u2": 1,
+  "q1": 2,
+  "q2": 2,
+  "q3": 0
 }
