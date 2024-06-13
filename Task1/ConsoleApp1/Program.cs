@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Text.RegularExpressions;
+
 using Newtonsoft.Json;
 
 
@@ -32,6 +32,7 @@ class Program
             {
                 // close after creation
             }
+            Utility.StyledMessage("File was created");
         }
 
         GameData gameData = new GameData();
@@ -46,7 +47,7 @@ class Program
         }
         catch (Exception ex)
         {
-            Utility.StyledMessage(ex.ToString(), Utility.MessageType.ERROR);
+            Utility.StyledMessage("END.", Utility.MessageType.ERROR);
             WriteScoreIntoFile(peopleDictionary, gameData, path);
         }
     }
@@ -55,7 +56,7 @@ class Program
         Console.Write("Enter initial word: ");
         string initialInput = Console.ReadLine() ?? "";
 
-        if (!CheckInitialInput(initialInput)) return;
+        if (!Utility.CheckInitialInput(initialInput)) return;
 
         int wordNumber = 0;
         List<string> usedWords = new List<string> { initialInput };
@@ -73,9 +74,6 @@ class Program
     {
         Utility.StyledMessage("The player suddenly disappeared...", Utility.MessageType.ERROR);
         WriteScoreIntoFile(peopleDictionary, gameData, path);
-
-        // cancel closing
-        // args.Cancel = true;
     }
 
     static async void WriteScoreIntoFile(Dictionary<string, int> peopleDictionary, GameData gameData, string path)
@@ -98,8 +96,6 @@ class Program
         string json = JsonConvert.SerializeObject(peopleDictionary, Formatting.Indented);
         // write data into the file
         await File.WriteAllTextAsync(path, json);
-        // write data at the end of the file
-        // await File.AppendAllTextAsync(path, "\nHello work");
 
         // reading the file
         string fileText = await File.ReadAllTextAsync(path);
@@ -112,7 +108,7 @@ class Program
         gameData.Winner = anotherPlayer;
         if (player.ErrorAttempts >= MaxNumberOfErrorAttempts)
         {
-            string errorMessage = $"Player {player.PlayerName} entered incorrect words the maximum number of times ({player.ErrorAttempts} times). The end.";
+            string errorMessage = $"Player {player.PlayerName} entered incorrect words the maximum number of times ({player.ErrorAttempts} times).";
             Utility.ThrowCustomException(errorMessage);
         }
 
@@ -183,31 +179,6 @@ class Program
                 usedWords.Add(newInput);
             }
         }
-        return true;
-    }
-
-    static bool CheckInitialInput(string input)
-    {
-        // empty
-        if (Utility.EmptyInput(input))
-        {
-            return false;
-        }
-
-        // check length
-        if (input.Length < 8 || input.Length > 30)
-        {
-            Utility.StyledMessage("Your word must contain min 8 and max 30 letters!");
-            return false;
-        }
-
-        // only letters
-        if (!Regex.IsMatch(input, @"^[a-zA-Z]+$"))
-        {
-            Utility.StyledMessage("You can use only letters!");
-            return false;
-        }
-
         return true;
     }
 

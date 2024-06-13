@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 public static class Utility
 {
     public enum MessageType
@@ -17,6 +19,31 @@ public static class Utility
         }
 
         return false;
+    }
+
+    public static bool CheckInitialInput(string input)
+    {
+        // empty
+        if (EmptyInput(input))
+        {
+            return false;
+        }
+
+        // check length
+        if (input.Length < 8 || input.Length > 30)
+        {
+            StyledMessage("Your word must contain min 8 and max 30 letters!");
+            return false;
+        }
+
+        // only letters
+        if (!Regex.IsMatch(input, @"^[a-zA-Z]+$"))
+        {
+            StyledMessage("You can use only letters!");
+            return false;
+        }
+
+        return true;
     }
 
     public static void StyledMessage(string message, MessageType type = MessageType.WARNING)
