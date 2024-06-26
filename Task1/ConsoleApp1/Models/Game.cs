@@ -1,54 +1,56 @@
-public class Game
+namespace MyProject.Models
 {
-    private Player playerFirst;
-
-    private Player playerSecond;
-    private string winner;
-
-    public Player PlayerFirst
+    public class Game
     {
-        get { return playerFirst; }
-        set
+        private Player playerFirst;
+
+        private Player playerSecond;
+        private string winner;
+
+        public Player PlayerFirst
         {
-            playerFirst = value;
+            get { return playerFirst; }
+            set
+            {
+                playerFirst = value;
+            }
         }
-    }
-    public Player PlayerSecond
-    {
-        get { return playerSecond; }
-        set
+        public Player PlayerSecond
         {
-            if (value.PlayerName == PlayerFirst?.PlayerName)
-                throw new Exception("Names must be different");
-            else
-                playerSecond = value;
+            get { return playerSecond; }
+            set
+            {
+                if (value.PlayerName == PlayerFirst?.PlayerName)
+                    throw new Exception("Names must be different");
+                else
+                    playerSecond = value;
+            }
         }
-    }
-    public string Winner
-    {
-        get { return winner; }
-        set
+        public string Winner
         {
-            List<string> listOfAcceptableValues = new List<string> { "", PlayerFirst.PlayerName, PlayerSecond.PlayerName };
-            if (!listOfAcceptableValues.Contains(value))
-                throw new Exception("There is no such player");
-            else
-                winner = value;
+            get { return winner; }
+            set
+            {
+                List<string> listOfAcceptableValues = new List<string> { "", PlayerFirst.PlayerName, PlayerSecond.PlayerName };
+                if (!listOfAcceptableValues.Contains(value))
+                    throw new Exception("There is no such player");
+                else
+                    winner = value;
+            }
         }
-    }
 
-    // constructor
-    public Game()
-    {
-        PlayerFirst = Player.CreatePlayer(1);
-        PlayerSecond = Player.CreatePlayer(2);
-        Winner = "";
-    }
+        // constructor
+        public Game()
+        {
+            PlayerFirst = Player.CreatePlayer(1);
+            PlayerSecond = Player.CreatePlayer(2);
+            Winner = "";
+        }
 
-    public void ShowWords()
-    {
-        PlayerFirst.ShowPlayer();
-        PlayerSecond.ShowPlayer();
+        public void ShowWords()
+        {
+            PlayerFirst.ShowPlayer();
+            PlayerSecond.ShowPlayer();
+        }
     }
 }
-

@@ -1,12 +1,17 @@
-﻿class Program
+﻿using MyProject.Services;
+
+namespace MyProject
 {
-
-    static async Task Main()
+    class Program
     {
-        const int MaxNumberOfErrorAttempts = 3;
-        GameService gameService = new GameService(MaxNumberOfErrorAttempts);
-        string fileName = @"/gameResults.txt";
 
-        await gameService.StartGame(fileName);
+        static async Task Main()
+        {
+            const int MaxNumberOfErrorAttempts = 3;
+            GameService gameService = new GameService(MaxNumberOfErrorAttempts);
+            string fileName = @"/gameResults.txt";
+
+            await gameService.StartGame(fileName);
+        }
     }
 }
