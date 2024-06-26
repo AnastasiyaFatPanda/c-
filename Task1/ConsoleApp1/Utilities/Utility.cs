@@ -9,6 +9,14 @@ public static class Utility
         INFO
     }
 
+    public enum EnterStatus
+    {
+        SUCCESS,
+        ERROR,
+        COMMAND
+
+    }
+
     public static bool EmptyInput(string input)
     {
         // empty

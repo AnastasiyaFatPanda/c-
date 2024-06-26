@@ -1,4 +1,4 @@
-public class PlayerData
+public class Player
 {
     private string playerName;
 
@@ -20,7 +20,7 @@ public class PlayerData
 
 
     // constructor
-    private PlayerData(int num, string name)
+    private Player(int num, string name)
     {
         PlayerNumber = num;
         PlayerName = name;
@@ -28,14 +28,14 @@ public class PlayerData
         ErrorAttempts = 0;
     }
 
-    public static PlayerData CreatePlayerData(int num)
+    public static Player CreatePlayer(int num)
     {
         Console.Write($"\nEnter name for player #{num}: ");
         string name = Console.ReadLine() ?? "";
-        return new PlayerData(num, name);
+        return new Player(num, name);
     }
 
-    public void ShowPlayerData()
+    public void ShowPlayer()
     {
         Console.Write($"\nPlayer #1: ${PlayerName}");
         Console.Write($"\nPlayer #1 used words for the last game: ${PlayerWords}");

@@ -1,18 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json;
-
-public class GameData
+public class Game
 {
-    private PlayerData playerFirst;
+    private Player playerFirst;
 
-    private PlayerData playerSecond;
+    private Player playerSecond;
     private string winner;
 
-    public PlayerData PlayerFirst
+    public Player PlayerFirst
     {
         get { return playerFirst; }
         set
@@ -20,7 +13,7 @@ public class GameData
             playerFirst = value;
         }
     }
-    public PlayerData PlayerSecond
+    public Player PlayerSecond
     {
         get { return playerSecond; }
         set
@@ -45,17 +38,17 @@ public class GameData
     }
 
     // constructor
-    public GameData()
+    public Game()
     {
-        PlayerFirst = PlayerData.CreatePlayerData(1);
-        PlayerSecond = PlayerData.CreatePlayerData(2);
+        PlayerFirst = Player.CreatePlayer(1);
+        PlayerSecond = Player.CreatePlayer(2);
         Winner = "";
     }
 
     public void ShowWords()
     {
-        PlayerFirst.ShowPlayerData();
-        PlayerSecond.ShowPlayerData();
+        PlayerFirst.ShowPlayer();
+        PlayerSecond.ShowPlayer();
     }
 }
 
