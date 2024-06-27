@@ -62,25 +62,21 @@ namespace MyProject.Services
 
             if (!CheckInitialInput(initialInput)) return;
 
-            int wordNumber = 0;
             List<string> usedWords = new List<string> { initialInput };
 
             while (gameData.PlayerFirst.ErrorAttempts < _maxNumberOfErrorAttempts && gameData.PlayerSecond.ErrorAttempts < _maxNumberOfErrorAttempts)
             {
                 (Player currentPlayer, Player competitorPlayer) = gameData.GetPlayersForTheNextMove();
-
-                // we start each new itteration from the first gamer
-                int attemptNumber = currentPlayer.PlayerNumber == gameData.PlayerFirst.PlayerNumber ? ++wordNumber : wordNumber;
-                Move(initialInput, currentPlayer, competitorPlayer.PlayerName, gameData, usedWords, attemptNumber, peopleDictionary);
+                Move(initialInput, currentPlayer, competitorPlayer.PlayerName, gameData, usedWords, peopleDictionary);
             }
         }
 
-        private void Move(string initialInput, Player player, string playerCompetitorName, Game gameData, List<string> usedWords, int attemptNumber, Dictionary<string, int> peopleDictionary)
+        private void Move(string initialInput, Player player, string playerCompetitorName, Game gameData, List<string> usedWords, Dictionary<string, int> peopleDictionary)
         {
             EnterStatus playerEnter;
             do
             {
-                (playerEnter, var newInput) = EnterWord(initialInput, player, usedWords, attemptNumber, peopleDictionary, playerCompetitorName, gameData);
+                (playerEnter, var newInput) = EnterWord(initialInput, player, usedWords, peopleDictionary, playerCompetitorName, gameData);
                 switch (playerEnter)
                 {
                     case EnterStatus.ERROR:
@@ -131,7 +127,7 @@ namespace MyProject.Services
 
         }
 
-        private (EnterStatus status, string newWord) EnterWord(string initialInput, Player player, List<string> usedWords, int attemptNumber, Dictionary<string, int> peopleDictionary, string playerCompetitorName, Game gameData)
+        private (EnterStatus status, string newWord) EnterWord(string initialInput, Player player, List<string> usedWords, Dictionary<string, int> peopleDictionary, string playerCompetitorName, Game gameData)
         {
             gameData.Winner = playerCompetitorName;
 
@@ -144,7 +140,7 @@ namespace MyProject.Services
                 return (EnterStatus.ERROR, "");
             }
 
-            Console.Write($"\nUser {player.PlayerName} Enter word number {attemptNumber} to compare: ");
+            Console.Write($"\nUser {player.PlayerName} Enter word number {gameData.ItterationNumber} to compare: ");
             string newInput = Console.ReadLine() ?? "";
             string listOfUsedWords = String.Join(", ", usedWords);
 

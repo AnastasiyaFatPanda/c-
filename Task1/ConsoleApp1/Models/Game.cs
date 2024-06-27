@@ -39,6 +39,7 @@ namespace MyProject.Models
             }
         }
         public int CurrentPayerNumber;
+        public int ItterationNumber;
 
         // constructor
         public Game()
@@ -46,6 +47,7 @@ namespace MyProject.Models
             PlayerFirst = Player.CreatePlayer(1);
             PlayerSecond = Player.CreatePlayer(2);
             CurrentPayerNumber = 0;
+            ItterationNumber = 0;
             Winner = "";
         }
 
@@ -60,6 +62,8 @@ namespace MyProject.Models
             if (CurrentPayerNumber != PlayerFirst.PlayerNumber)
             {
                 CurrentPayerNumber = PlayerFirst.PlayerNumber;
+                // we start each new itteration from the first gamer
+                ItterationNumber++;
                 return (PlayerFirst, PlayerSecond);
             }
 
