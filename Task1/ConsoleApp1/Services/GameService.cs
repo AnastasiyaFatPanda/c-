@@ -67,10 +67,11 @@ namespace MyProject.Services
 
             while (gameData.PlayerFirst.ErrorAttempts < _maxNumberOfErrorAttempts && gameData.PlayerSecond.ErrorAttempts < _maxNumberOfErrorAttempts)
             {
-                int attemptNumber = ++wordNumber;
+                (Player currentPlayer, Player competitorPlayer) = gameData.GetPlayersForTheNextMove();
 
-                Move(initialInput, gameData.PlayerFirst, gameData.PlayerSecond.PlayerName, gameData, usedWords, attemptNumber, peopleDictionary);
-                Move(initialInput, gameData.PlayerSecond, gameData.PlayerFirst.PlayerName, gameData, usedWords, attemptNumber, peopleDictionary);
+                // we start each new itteration from the first gamer
+                int attemptNumber = currentPlayer.PlayerNumber == gameData.PlayerFirst.PlayerNumber ? ++wordNumber : wordNumber;
+                Move(initialInput, currentPlayer, competitorPlayer.PlayerName, gameData, usedWords, attemptNumber, peopleDictionary);
             }
         }
 
@@ -153,7 +154,7 @@ namespace MyProject.Services
                 return (EnterStatus.ERROR, "");
             }
             // if user entered a command
-            else if (Commands.CommandsList().Contains(newInput))
+            else if (Commands.CommandsList.Contains(newInput))
             {
                 RunCommand(newInput, peopleDictionary, player, playerCompetitorName, listOfUsedWords);
                 return (EnterStatus.COMMAND, "");

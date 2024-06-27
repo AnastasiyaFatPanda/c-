@@ -38,12 +38,14 @@ namespace MyProject.Models
                     winner = value;
             }
         }
+        public int CurrentPayerNumber;
 
         // constructor
         public Game()
         {
             PlayerFirst = Player.CreatePlayer(1);
             PlayerSecond = Player.CreatePlayer(2);
+            CurrentPayerNumber = 0;
             Winner = "";
         }
 
@@ -51,6 +53,18 @@ namespace MyProject.Models
         {
             PlayerFirst.ShowPlayer();
             PlayerSecond.ShowPlayer();
+        }
+
+        public (Player currentPlayer, Player competitorPlayer) GetPlayersForTheNextMove()
+        {
+            if (CurrentPayerNumber != PlayerFirst.PlayerNumber)
+            {
+                CurrentPayerNumber = PlayerFirst.PlayerNumber;
+                return (PlayerFirst, PlayerSecond);
+            }
+
+            CurrentPayerNumber = PlayerSecond.PlayerNumber;
+            return (PlayerSecond, PlayerFirst);
         }
     }
 }
