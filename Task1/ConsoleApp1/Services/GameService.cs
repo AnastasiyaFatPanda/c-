@@ -64,34 +64,40 @@ namespace MyProject.Services
 
             List<string> usedWords = new List<string> { initialInput };
 
+            // initial players
+            (Player currentPlayer, Player competitorPlayer) = gameData.GetPlayersForTheNextMove();
             while (gameData.PlayerFirst.ErrorAttempts < _maxNumberOfErrorAttempts && gameData.PlayerSecond.ErrorAttempts < _maxNumberOfErrorAttempts)
             {
-                (Player currentPlayer, Player competitorPlayer) = gameData.GetPlayersForTheNextMove();
-                Move(initialInput, currentPlayer, competitorPlayer.PlayerName, gameData, usedWords, peopleDictionary);
-            }
-        }
 
-        private void Move(string initialInput, Player player, string playerCompetitorName, Game gameData, List<string> usedWords, Dictionary<string, int> peopleDictionary)
-        {
-            EnterStatus playerEnter;
-            do
-            {
-                (playerEnter, var newInput) = EnterWord(initialInput, player, usedWords, peopleDictionary, playerCompetitorName, gameData);
-                switch (playerEnter)
+                bool isMoveSuccessful = Move(initialInput, currentPlayer, competitorPlayer.PlayerName, gameData, usedWords, peopleDictionary);
+                if (isMoveSuccessful)
                 {
-                    case EnterStatus.ERROR:
-                        player.ErrorAttempts++;
-                        break;
-
-                    case EnterStatus.SUCCESS:
-                        usedWords.Add(newInput);
-                        break;
-
-                    default:
-                        break;
+                    (currentPlayer, competitorPlayer) = gameData.GetPlayersForTheNextMove();
                 }
             }
-            while (playerEnter != EnterStatus.SUCCESS);
+
+            Player loser = gameData.PlayerFirst.PlayerName == gameData.Winner ? gameData.PlayerSecond : gameData.PlayerFirst;
+            string errorMessage = $"Player {loser.PlayerName} entered incorrect words the maximum number of times ({loser.ErrorAttempts} times).";
+            ThrowCustomException(errorMessage);
+        }
+
+        private bool Move(string initialInput, Player player, string playerCompetitorName, Game gameData, List<string> usedWords, Dictionary<string, int> peopleDictionary)
+        {
+            (EnterStatus playerEnter, var newInput) = EnterWord(initialInput, player, usedWords, peopleDictionary, playerCompetitorName, gameData);
+
+            switch (playerEnter)
+            {
+                case EnterStatus.ERROR:
+                    player.ErrorAttempts++;
+                    return false;
+
+                case EnterStatus.SUCCESS:
+                    usedWords.Add(newInput);
+                    return true;
+
+                default:
+                    return false;
+            }
         }
 
         private static void OnExit(object sender, ConsoleCancelEventArgs args, Dictionary<string, int> peopleDictionary, Game gameData, string path)
@@ -134,9 +140,6 @@ namespace MyProject.Services
             // check if user is allowed to enter a new word
             if (player.ErrorAttempts >= _maxNumberOfErrorAttempts)
             {
-                string errorMessage = $"Player {player.PlayerName} entered incorrect words the maximum number of times ({player.ErrorAttempts} times).";
-                ThrowCustomException(errorMessage);
-
                 return (EnterStatus.ERROR, "");
             }
 
