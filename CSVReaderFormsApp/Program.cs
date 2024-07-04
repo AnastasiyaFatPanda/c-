@@ -1,3 +1,6 @@
+using System.Data;
+using System.Diagnostics;
+
 namespace CSVReaderFormsApp
 {
     internal static class Program
@@ -13,5 +16,6 @@ namespace CSVReaderFormsApp
             ApplicationConfiguration.Initialize();
             Application.Run(new FormDataReader());
         }
+
     }
 }

@@ -88,7 +88,7 @@
             // radioButtonExcel
             // 
             radioButtonExcel.AutoSize = true;
-            radioButtonExcel.Location = new Point(12, 56);
+            radioButtonExcel.Location = new Point(12, 54);
             radioButtonExcel.Margin = new Padding(1, 1, 1, 1);
             radioButtonExcel.Name = "radioButtonExcel";
             radioButtonExcel.Size = new Size(64, 24);
@@ -139,7 +139,7 @@
             // labelCity
             // 
             labelCity.AutoSize = true;
-            labelCity.Location = new Point(14, 151);
+            labelCity.Location = new Point(14, 145);
             labelCity.Margin = new Padding(1, 0, 1, 0);
             labelCity.Name = "labelCity";
             labelCity.Size = new Size(34, 20);
@@ -149,7 +149,7 @@
             // labelCountry
             // 
             labelCountry.AutoSize = true;
-            labelCountry.Location = new Point(14, 122);
+            labelCountry.Location = new Point(14, 116);
             labelCountry.Margin = new Padding(1, 0, 1, 0);
             labelCountry.Name = "labelCountry";
             labelCountry.Size = new Size(60, 20);
@@ -159,7 +159,7 @@
             // labelSurname
             // 
             labelSurname.AutoSize = true;
-            labelSurname.Location = new Point(14, 91);
+            labelSurname.Location = new Point(14, 85);
             labelSurname.Margin = new Padding(1, 0, 1, 0);
             labelSurname.Name = "labelSurname";
             labelSurname.Size = new Size(67, 20);
@@ -169,7 +169,7 @@
             // labelName
             // 
             labelName.AutoSize = true;
-            labelName.Location = new Point(14, 61);
+            labelName.Location = new Point(14, 55);
             labelName.Margin = new Padding(1, 0, 1, 0);
             labelName.Name = "labelName";
             labelName.Size = new Size(49, 20);
@@ -180,7 +180,7 @@
             // labelDate
             // 
             labelDate.AutoSize = true;
-            labelDate.Location = new Point(14, 30);
+            labelDate.Location = new Point(14, 25);
             labelDate.Margin = new Padding(1, 0, 1, 0);
             labelDate.Name = "labelDate";
             labelDate.Size = new Size(41, 20);
@@ -269,6 +269,7 @@
             Margin = new Padding(1, 1, 1, 1);
             Name = "FormDataReader";
             Text = "DataReader";
+            Load += FormDataReader_Load;
             groupBoxRadioButtons.ResumeLayout(false);
             groupBoxRadioButtons.PerformLayout();
             groupBoxFilter.ResumeLayout(false);
