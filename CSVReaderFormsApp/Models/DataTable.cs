@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CSVReaderFormsApp.Models
 {
 
-    internal class DBRecord
+    internal class DataTable
     {
         public string name;
         public string surname;

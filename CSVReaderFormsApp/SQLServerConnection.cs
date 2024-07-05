@@ -10,6 +10,7 @@ public class SqlServerConnection
     private readonly string connectionString;
     public readonly string schema;
     private SqlConnection connection;
+    private string tableName = "dummy";
 
     // Constructor to initialize the connection string from configuration
     public SqlServerConnection()
@@ -29,7 +30,7 @@ public class SqlServerConnection
         var trustServerCertificate = bool.Parse(databaseSettings["TrustServerCertificate"]);
 
         connectionString = $"Server={host};Initial Catalog={database};User Id={user};Password={password};Encrypt={encrypt};TrustServerCertificate={trustServerCertificate};";
-        MessageBox.Show(connectionString);
+        // MessageBox.Show(connectionString);
     }
 
     // Method to open the connection
@@ -48,14 +49,14 @@ public class SqlServerConnection
     }
 
     // Method to close the connection
-    public void CloseConnection()
+    public void CloseConnection(string message = "Connection closed successfully.")
     {
         try
         {
             if (connection != null && connection.State == ConnectionState.Open)
             {
                 connection.Close();
-                MessageBox.Show("Connection closed successfully.");
+                MessageBox.Show(message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
         catch (Exception ex)
@@ -85,6 +86,11 @@ public class SqlServerConnection
         return dataTable;
     }
 
+    // Example of executing a command
+    // string insertCommand = "INSERT INTO YourTable (ColumnName) VALUES ('Value')";
+    // int rowsAffected = sqlServerConnection.ExecuteCommand(insertCommand);
+    // Console.WriteLine($"Rows affected: {rowsAffected}");
+
     // Method to execute a command (INSERT, UPDATE, DELETE)
     public int ExecuteCommand(string commandText)
     {
@@ -100,6 +106,39 @@ public class SqlServerConnection
         {
             MessageBox.Show($"An error occurred while executing the command: {ex.Message}");
         }
+
+        MessageBox.Show($"Rows affected: {affectedRows}");
         return affectedRows;
+    }
+
+    public int CheckIfTableHasData()
+    {
+        // Define the query to count rows in the specified table
+        string query = $"SELECT COUNT(1) FROM {tableName}";
+
+        // Use a try-catch block to handle potential exceptions
+        try
+        {
+            // Example of executing a query
+            string sqlTable = $"{schema}.dummy";
+            string selectQuery = $"SELECT * FROM {sqlTable}";
+            DataTable result = ExecuteQuery(selectQuery);
+            /*string dbData = "";
+            foreach (DataRow row in result.Rows)
+            {
+                dbData += $"{row["name"]} {row["surname"]} \n";
+            }
+            MessageBox.Show(dbData);*/
+
+            // Check if the row count is greater than zero
+            return result.Rows.Count;
+
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception (e.g., log it)
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return 0;
+        }
     }
 }

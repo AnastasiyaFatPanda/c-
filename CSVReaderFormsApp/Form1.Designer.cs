@@ -47,6 +47,7 @@
             progressBar = new ProgressBar();
             openFileDialog = new OpenFileDialog();
             labelNoDataInDb = new Label();
+            labelNumRecords = new Label();
             groupBoxRadioButtons.SuspendLayout();
             groupBoxFilter.SuspendLayout();
             SuspendLayout();
@@ -54,19 +55,19 @@
             // buttonImport
             // 
             buttonImport.Location = new Point(20, 21);
-            buttonImport.Margin = new Padding(1, 1, 1, 1);
+            buttonImport.Margin = new Padding(1);
             buttonImport.Name = "buttonImport";
             buttonImport.Size = new Size(398, 43);
             buttonImport.TabIndex = 0;
             buttonImport.Text = "Import File";
             buttonImport.UseVisualStyleBackColor = true;
-            buttonImport.Click += button1_Click;
+            buttonImport.Click += buttonImport_Click;
             // 
             // buttonExport
             // 
             buttonExport.Enabled = false;
-            buttonExport.Location = new Point(290, 208);
-            buttonExport.Margin = new Padding(1, 1, 1, 1);
+            buttonExport.Location = new Point(290, 194);
+            buttonExport.Margin = new Padding(1);
             buttonExport.Name = "buttonExport";
             buttonExport.Size = new Size(128, 84);
             buttonExport.TabIndex = 1;
@@ -76,8 +77,9 @@
             // radioButtonCsv
             // 
             radioButtonCsv.AutoSize = true;
+            radioButtonCsv.Checked = true;
             radioButtonCsv.Location = new Point(12, 30);
-            radioButtonCsv.Margin = new Padding(1, 1, 1, 1);
+            radioButtonCsv.Margin = new Padding(1);
             radioButtonCsv.Name = "radioButtonCsv";
             radioButtonCsv.Size = new Size(56, 24);
             radioButtonCsv.TabIndex = 2;
@@ -89,11 +91,10 @@
             // 
             radioButtonExcel.AutoSize = true;
             radioButtonExcel.Location = new Point(12, 54);
-            radioButtonExcel.Margin = new Padding(1, 1, 1, 1);
+            radioButtonExcel.Margin = new Padding(1);
             radioButtonExcel.Name = "radioButtonExcel";
             radioButtonExcel.Size = new Size(64, 24);
             radioButtonExcel.TabIndex = 3;
-            radioButtonExcel.TabStop = true;
             radioButtonExcel.Text = "Excel";
             radioButtonExcel.UseVisualStyleBackColor = true;
             // 
@@ -103,10 +104,10 @@
             groupBoxRadioButtons.Controls.Add(radioButtonExcel);
             groupBoxRadioButtons.Controls.Add(radioButtonCsv);
             groupBoxRadioButtons.Enabled = false;
-            groupBoxRadioButtons.Location = new Point(290, 104);
-            groupBoxRadioButtons.Margin = new Padding(1, 1, 1, 1);
+            groupBoxRadioButtons.Location = new Point(290, 90);
+            groupBoxRadioButtons.Margin = new Padding(1);
             groupBoxRadioButtons.Name = "groupBoxRadioButtons";
-            groupBoxRadioButtons.Padding = new Padding(1, 1, 1, 1);
+            groupBoxRadioButtons.Padding = new Padding(1);
             groupBoxRadioButtons.Size = new Size(128, 90);
             groupBoxRadioButtons.TabIndex = 4;
             groupBoxRadioButtons.TabStop = false;
@@ -126,10 +127,10 @@
             groupBoxFilter.Controls.Add(textBoxName);
             groupBoxFilter.Controls.Add(dateTimePicker);
             groupBoxFilter.Enabled = false;
-            groupBoxFilter.Location = new Point(20, 104);
-            groupBoxFilter.Margin = new Padding(1, 1, 1, 1);
+            groupBoxFilter.Location = new Point(20, 90);
+            groupBoxFilter.Margin = new Padding(1);
             groupBoxFilter.Name = "groupBoxFilter";
-            groupBoxFilter.Padding = new Padding(1, 1, 1, 1);
+            groupBoxFilter.Padding = new Padding(1);
             groupBoxFilter.Size = new Size(250, 188);
             groupBoxFilter.TabIndex = 5;
             groupBoxFilter.TabStop = false;
@@ -190,7 +191,7 @@
             // textBoxCity
             // 
             textBoxCity.Location = new Point(87, 148);
-            textBoxCity.Margin = new Padding(1, 1, 1, 1);
+            textBoxCity.Margin = new Padding(1);
             textBoxCity.Name = "textBoxCity";
             textBoxCity.Size = new Size(138, 27);
             textBoxCity.TabIndex = 4;
@@ -198,7 +199,7 @@
             // textBoxCountry
             // 
             textBoxCountry.Location = new Point(87, 119);
-            textBoxCountry.Margin = new Padding(1, 1, 1, 1);
+            textBoxCountry.Margin = new Padding(1);
             textBoxCountry.Name = "textBoxCountry";
             textBoxCountry.Size = new Size(138, 27);
             textBoxCountry.TabIndex = 3;
@@ -206,7 +207,7 @@
             // textBoxSurname
             // 
             textBoxSurname.Location = new Point(87, 88);
-            textBoxSurname.Margin = new Padding(1, 1, 1, 1);
+            textBoxSurname.Margin = new Padding(1);
             textBoxSurname.Name = "textBoxSurname";
             textBoxSurname.Size = new Size(138, 27);
             textBoxSurname.TabIndex = 2;
@@ -214,7 +215,7 @@
             // textBoxName
             // 
             textBoxName.Location = new Point(87, 58);
-            textBoxName.Margin = new Padding(1, 1, 1, 1);
+            textBoxName.Margin = new Padding(1);
             textBoxName.Name = "textBoxName";
             textBoxName.Size = new Size(138, 27);
             textBoxName.TabIndex = 1;
@@ -223,17 +224,17 @@
             // 
             dateTimePicker.Format = DateTimePickerFormat.Short;
             dateTimePicker.Location = new Point(87, 25);
-            dateTimePicker.Margin = new Padding(1, 1, 1, 1);
+            dateTimePicker.Margin = new Padding(1);
             dateTimePicker.Name = "dateTimePicker";
             dateTimePicker.Size = new Size(138, 27);
             dateTimePicker.TabIndex = 0;
             // 
             // progressBar
             // 
-            progressBar.Location = new Point(20, 76);
-            progressBar.Margin = new Padding(1, 1, 1, 1);
+            progressBar.Location = new Point(20, 68);
+            progressBar.Margin = new Padding(1);
             progressBar.Name = "progressBar";
-            progressBar.Size = new Size(398, 12);
+            progressBar.Size = new Size(398, 20);
             progressBar.TabIndex = 6;
             progressBar.Visible = false;
             // 
@@ -246,7 +247,7 @@
             labelNoDataInDb.AutoSize = true;
             labelNoDataInDb.BackColor = Color.MistyRose;
             labelNoDataInDb.ForeColor = SystemColors.ControlDarkDark;
-            labelNoDataInDb.Location = new Point(74, 68);
+            labelNoDataInDb.Location = new Point(20, 68);
             labelNoDataInDb.Margin = new Padding(1, 0, 1, 0);
             labelNoDataInDb.Name = "labelNoDataInDb";
             labelNoDataInDb.RightToLeft = RightToLeft.Yes;
@@ -254,19 +255,33 @@
             labelNoDataInDb.TabIndex = 7;
             labelNoDataInDb.Text = "There is no data in DB. Please, import CSV file.";
             // 
+            // labelNumRecords
+            // 
+            labelNumRecords.AutoSize = true;
+            labelNumRecords.BackColor = Color.LightGoldenrodYellow;
+            labelNumRecords.ForeColor = SystemColors.ControlDarkDark;
+            labelNumRecords.Location = new Point(20, 68);
+            labelNumRecords.Margin = new Padding(1, 0, 1, 0);
+            labelNumRecords.Name = "labelNumRecords";
+            labelNumRecords.RightToLeft = RightToLeft.Yes;
+            labelNumRecords.Size = new Size(102, 20);
+            labelNumRecords.TabIndex = 8;
+            labelNumRecords.Text = "Database has ";
+            // 
             // FormDataReader
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ActiveCaption;
-            ClientSize = new Size(438, 311);
+            ClientSize = new Size(434, 296);
+            Controls.Add(labelNumRecords);
             Controls.Add(labelNoDataInDb);
             Controls.Add(progressBar);
             Controls.Add(groupBoxFilter);
             Controls.Add(groupBoxRadioButtons);
             Controls.Add(buttonExport);
             Controls.Add(buttonImport);
-            Margin = new Padding(1, 1, 1, 1);
+            Margin = new Padding(1);
             Name = "FormDataReader";
             Text = "DataReader";
             Load += FormDataReader_Load;
@@ -299,5 +314,6 @@
         private ProgressBar progressBar;
         private OpenFileDialog openFileDialog;
         private Label labelNoDataInDb;
+        private Label labelNumRecords;
     }
 }

@@ -17,56 +17,71 @@ namespace CSVReaderFormsApp
         {
             InitializeComponent();
 
-            progressBar.Visible = true;
-            labelNoDataInDb.Visible = false;
-            // Initialize background worker
-          //  bgWorker = new BackgroundWorker();
-          //  bgWorker.WorkerReportsProgress = true;
-         //   bgWorker.DoWork += BgWorker_DoWork;
-         //   bgWorker.ProgressChanged += BgWorker_ProgressChanged;
-         //   bgWorker.RunWorkerCompleted += BgWorker_RunWorkerCompleted;
-
             // Initialize the SqlServerConnection
             sqlServerConnection = new SqlServerConnection();
 
             // Open the SQL Server connection
-             sqlServerConnection.OpenConnection();
+            sqlServerConnection.OpenConnection();
 
+            int numOfRecordsDb = sqlServerConnection.CheckIfTableHasData();
+            bool tableHasData = numOfRecordsDb > 0;
+            if (tableHasData)
+            {
+                // progressBar.Visible = true;
+                labelNoDataInDb.Visible = false;
+                labelNumRecords.Visible = true;
+                labelNumRecords.Text = numOfRecordsDb == 1 
+                    ? "Database contains one record"
+                    : $"Database contains {numOfRecordsDb} records";
+
+                groupBoxFilter.Enabled = true;
+                groupBoxRadioButtons.Enabled = true;
+                buttonExport.Enabled = true;
+
+            }
             // Add the FormClosed event handler
             this.FormClosed += new FormClosedEventHandler(Form1_FormClosed);
-
-
-            // Example of executing a query
-            string sqlTable = $"{sqlServerConnection.schema}.dummy";
-            string selectQuery = $"SELECT * FROM {sqlTable}";
-            DataTable result = sqlServerConnection.ExecuteQuery(selectQuery);
-            string dbData = "";
-            foreach (DataRow row in result.Rows)
-            {
-                dbData += $"{row["name"]} {row["surname"]} \n";
-            }
-            MessageBox.Show(dbData);
-
-
-
-            // Example of executing a command
-            // string insertCommand = "INSERT INTO YourTable (ColumnName) VALUES ('Value')";
-            // int rowsAffected = sqlServerConnection.ExecuteCommand(insertCommand);
-            // Console.WriteLine($"Rows affected: {rowsAffected}");
         }
 
         // Event handler for FormClosed
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            // Perform any cleanup or actions needed when the form is closed
-            sqlServerConnection.CloseConnection();
-            MessageBox.Show("Connection closed and form is closed.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            sqlServerConnection.CloseConnection("Connection closed and form is closed.");
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void buttonImport_Click(object sender, EventArgs e)
         {
             // open file reader
-            openFileDialog.ShowDialog(this);
+            // openFileDialog.ShowDialog(this);
+
+            // Create and configure the OpenFileDialog
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                InitialDirectory = @"C:\", // Default directory
+                Title = "Browse Files",
+
+                CheckFileExists = true,
+                CheckPathExists = true,
+
+                DefaultExt = "csv",
+                Filter = "Text files (*.csv)|*.csv|All files (*.*)|*.*",
+                FilterIndex = 1,
+                RestoreDirectory = true,
+
+                ReadOnlyChecked = true,
+                ShowReadOnly = true
+            };
+
+            // Show the dialog and handle the file selection
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                // Get the selected file's path
+                string selectedFilePath = openFileDialog.FileName;
+
+                // Read the file or do something with the file path
+                string fileContent = System.IO.File.ReadAllText(selectedFilePath);
+                 MessageBox.Show(fileContent, "File Content", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void label2_Click(object sender, EventArgs e)
@@ -93,65 +108,5 @@ namespace CSVReaderFormsApp
                 bgWorker.RunWorkerAsync();
             }
         }
-
-      /**  private void BgWorker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            // Perform database connection here
-            try
-            {
-                // Simulate connection progress
-                for (int i = 1; i <= 100; i++)
-                {
-                    Thread.Sleep(50); // Simulate work
-                    bgWorker.ReportProgress(i); // Update progress
-                }
-
-                // Open the SqlConnection
-                sqlServerConnection.OpenConnection();
-
-                // Perform other database operations as needed
-                // Example: Execute SQL commands, fetch data, etc.
-
-                // Optional: You can return any result to the Completed event handler
-                e.Result = "Connection successful";
-            }
-            catch (Exception ex)
-            {
-                // Handle any exceptions
-                e.Result = ex.Message;
-            }
-            finally
-            {
-                // Ensure the connection is closed when done
-                sqlServerConnection.CloseConnection();
-            }
-        }
-
-        private void BgWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            
-            // Update the progress bar with the percentage value
-            progressBar.Value = e.ProgressPercentage;
-        }
-
-        private void BgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            // Handle the completion of the background worker
-            if (e.Error != null)
-            {
-                // Display error message
-                MessageBox.Show(e.Error.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            else if (e.Cancelled)
-            {
-                // Handle cancellation if needed
-            }
-            else
-            {
-                // Display success message or process any result
-                MessageBox.Show(e.Result.ToString(), "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-      **/
     }
 }
