@@ -12,8 +12,8 @@ C# course
 
 
 ### Config File Example
-	Create 'appsettings.json` file at the root of the project
-	```
+Create 'appsettings.json` file at the root of the project
+
 	{
 		"DatabaseSettings": {
 			"Host": "...",
@@ -26,4 +26,3 @@ C# course
 			"TrustServerCertificate": true
 		}
 	}
-	```
