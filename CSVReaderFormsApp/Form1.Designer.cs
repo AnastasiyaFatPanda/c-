@@ -267,6 +267,7 @@
             labelNumRecords.Size = new Size(102, 20);
             labelNumRecords.TabIndex = 8;
             labelNumRecords.Text = "Database has ";
+            labelNumRecords.Visible = false;
             // 
             // FormDataReader
             // 

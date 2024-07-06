@@ -1,3 +1,4 @@
+using CSVReaderFormsApp.Services;
 using Microsoft.Data.SqlClient;
 using System;
 using System.ComponentModel;
@@ -23,24 +24,32 @@ namespace CSVReaderFormsApp
             // Open the SQL Server connection
             sqlServerConnection.OpenConnection();
 
-            int numOfRecordsDb = sqlServerConnection.CheckIfTableHasData();
-            bool tableHasData = numOfRecordsDb > 0;
+            int numberOfRecords = CheckNumOfDBRecords();
+            bool tableHasData = numberOfRecords > 0;
             if (tableHasData)
             {
-                // progressBar.Visible = true;
                 labelNoDataInDb.Visible = false;
                 labelNumRecords.Visible = true;
-                labelNumRecords.Text = numOfRecordsDb == 1 
-                    ? "Database contains one record"
-                    : $"Database contains {numOfRecordsDb} records";
+                CheckNumOfDBRecords();
 
                 groupBoxFilter.Enabled = true;
                 groupBoxRadioButtons.Enabled = true;
                 buttonExport.Enabled = true;
-
             }
+
             // Add the FormClosed event handler
             this.FormClosed += new FormClosedEventHandler(Form1_FormClosed);
+        }
+
+        public int CheckNumOfDBRecords()
+        {
+            int numberOfRecords = sqlServerConnection.CheckIfTableHasData();
+
+            labelNumRecords.Text = numberOfRecords == 1
+                ? "Database contains one record"
+                : $"Database contains {numberOfRecords} records";
+
+            return numberOfRecords;
         }
 
         // Event handler for FormClosed
@@ -57,7 +66,6 @@ namespace CSVReaderFormsApp
             // Create and configure the OpenFileDialog
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                InitialDirectory = @"C:\", // Default directory
                 Title = "Browse Files",
 
                 CheckFileExists = true,
@@ -79,9 +87,16 @@ namespace CSVReaderFormsApp
                 string selectedFilePath = openFileDialog.FileName;
 
                 // Read the file or do something with the file path
-                string fileContent = System.IO.File.ReadAllText(selectedFilePath);
-                 MessageBox.Show(fileContent, "File Content", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //string fileContent = System.IO.File.ReadAllText(selectedFilePath);
+               // MessageBox.Show(fileContent, "File Content", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                FileService fileService = new FileService();
+                string insertRequest = fileService.InsertCsvDataIntoDatabase(selectedFilePath, sqlServerConnection.sqlTableName);
+
+                sqlServerConnection.ExecuteCommand(insertRequest);
             }
+
+            CheckNumOfDBRecords();
         }
 
         private void label2_Click(object sender, EventArgs e)

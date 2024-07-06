@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Data;
-using Microsoft.Data.SqlClient; // Ensure the correct namespace for SqlClient
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 public class SqlServerConnection
 {
-    private readonly string connectionString;
-    public readonly string schema;
+    private string connectionString;
+    private string schema;
+    public string database;
+    public string sqlTableName;
     private SqlConnection connection;
-    private string tableName = "dummy";
+    private bool isConnectionOpened = false;
 
-    // Constructor to initialize the connection string from configuration
     public SqlServerConnection()
     {
         var configuration = new ConfigurationBuilder()
@@ -22,14 +24,16 @@ public class SqlServerConnection
 
         var databaseSettings = configuration.GetSection("DatabaseSettings");
         var host = databaseSettings["Host"];
-        schema = databaseSettings["Schema"] ?? "education";
-        var database = databaseSettings["Database"];
+        schema = databaseSettings["Schema"];
+        database = databaseSettings["Database"];
+        sqlTableName = $"{schema}.{database}";
+        var initialCatalog = databaseSettings["InitialCatalog"];
         var user = databaseSettings["User"];
         var password = databaseSettings["Password"];
         var encrypt = bool.Parse(databaseSettings["Encrypt"]);
         var trustServerCertificate = bool.Parse(databaseSettings["TrustServerCertificate"]);
 
-        connectionString = $"Server={host};Initial Catalog={database};User Id={user};Password={password};Encrypt={encrypt};TrustServerCertificate={trustServerCertificate};";
+        connectionString = $"Server={host};Initial Catalog={initialCatalog};User Id={user};Password={password};Encrypt={encrypt};TrustServerCertificate={trustServerCertificate};";
         // MessageBox.Show(connectionString);
     }
 
@@ -40,6 +44,7 @@ public class SqlServerConnection
         {
             connection = new SqlConnection(connectionString);
             connection.Open();
+            isConnectionOpened = true;
             MessageBox.Show("Connection opened successfully.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
@@ -56,6 +61,7 @@ public class SqlServerConnection
             if (connection != null && connection.State == ConnectionState.Open)
             {
                 connection.Close();
+                isConnectionOpened = false;
                 MessageBox.Show(message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
@@ -69,19 +75,26 @@ public class SqlServerConnection
     public DataTable ExecuteQuery(string query)
     {
         DataTable dataTable = new DataTable();
-        try
+        if (isConnectionOpened)
         {
-            using (SqlCommand command = new SqlCommand(query, connection))
+            try
             {
-                using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    adapter.Fill(dataTable);
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+                    {
+                        adapter.Fill(dataTable);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while executing the query: {ex.Message}");
+            }
         }
-        catch (Exception ex)
+        else
         {
-            MessageBox.Show($"An error occurred while executing the query: {ex.Message}");
+            MessageBox.Show("Open DB connection first!");
         }
         return dataTable;
     }
@@ -95,44 +108,45 @@ public class SqlServerConnection
     public int ExecuteCommand(string commandText)
     {
         int affectedRows = 0;
-        try
+        if (isConnectionOpened)
         {
-            using (SqlCommand command = new SqlCommand(commandText, connection))
+            try
             {
-                affectedRows = command.ExecuteNonQuery();
+                using (SqlCommand command = new SqlCommand(commandText, connection))
+                {
+                    affectedRows = command.ExecuteNonQuery();
+                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while executing the command: {ex.Message}");
+            }
+
+            MessageBox.Show($"Rows affected: {affectedRows}");
         }
-        catch (Exception ex)
+        else
         {
-            MessageBox.Show($"An error occurred while executing the command: {ex.Message}");
+            MessageBox.Show("Open DB connection first!");
         }
 
-        MessageBox.Show($"Rows affected: {affectedRows}");
         return affectedRows;
     }
 
     public int CheckIfTableHasData()
     {
-        // Define the query to count rows in the specified table
-        string query = $"SELECT COUNT(1) FROM {tableName}";
-
         // Use a try-catch block to handle potential exceptions
         try
         {
-            // Example of executing a query
-            string sqlTable = $"{schema}.dummy";
-            string selectQuery = $"SELECT * FROM {sqlTable}";
-            DataTable result = ExecuteQuery(selectQuery);
-            /*string dbData = "";
-            foreach (DataRow row in result.Rows)
-            {
-                dbData += $"{row["name"]} {row["surname"]} \n";
-            }
-            MessageBox.Show(dbData);*/
+            string resColumnName = "countedRecords";
+            string query = $"SELECT COUNT(*) as {resColumnName} FROM {sqlTableName}";
 
-            // Check if the row count is greater than zero
-            return result.Rows.Count;
+            SqlCommand command = new SqlCommand(query, connection);
+            // Execute the query and get the result
+            int rowCount = (int)command.ExecuteScalar();
 
+            // MessageBox.Show(rowCount.ToString());
+            // Return the row count
+            return rowCount;
         }
         catch (Exception ex)
         {
@@ -141,4 +155,6 @@ public class SqlServerConnection
             return 0;
         }
     }
+
+
 }
