@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Diagnostics;
 using System.Xml.Linq;
+using CSVReaderFormsApp.Services;
 
 public class SqlServerConnection
 {
@@ -17,27 +18,15 @@ public class SqlServerConnection
 
     public SqlServerConnection()
     {
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json")
-            .Build();
+        ConfigService configService = new ConfigService();
 
-        var databaseSettings = configuration.GetSection("DatabaseSettings");
-        var host = databaseSettings["Host"];
-        schema = databaseSettings["Schema"];
-        database = databaseSettings["Database"];
-        sqlTableName = $"{schema}.{database}";
-        var initialCatalog = databaseSettings["InitialCatalog"];
-        var user = databaseSettings["User"];
-        var password = databaseSettings["Password"];
-        var encrypt = bool.Parse(databaseSettings["Encrypt"]);
-        var trustServerCertificate = bool.Parse(databaseSettings["TrustServerCertificate"]);
-
-        connectionString = $"Server={host};Initial Catalog={initialCatalog};User Id={user};Password={password};Encrypt={encrypt};TrustServerCertificate={trustServerCertificate};";
-        // MessageBox.Show(connectionString);
+        connectionString = configService.GetConnectionString();
+        schema = configService.GetSchema();
+        database = configService.GetDB();
+        sqlTableName = configService.GetTable();
+        MessageBox.Show(connectionString);
     }
 
-    // Method to open the connection
     public void OpenConnection()
     {
         try

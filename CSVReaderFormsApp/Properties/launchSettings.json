@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "CSVReaderFormsApp": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\jagfd\\Documents\\GitHub\\New folder\\c-",
+      "sqlDebugging": true
+    }
+  }
+}
