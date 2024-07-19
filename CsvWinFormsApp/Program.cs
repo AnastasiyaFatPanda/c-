@@ -1,7 +1,4 @@
-using System.Data;
-using System.Diagnostics;
-
-namespace CSVReaderFormsApp
+namespace CsvWinFormsApp
 {
     internal static class Program
     {
@@ -14,8 +11,7 @@ namespace CSVReaderFormsApp
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new FormDataReader());
+            Application.Run(new Form1());
         }
-
     }
 }
