@@ -181,22 +181,42 @@ namespace CsvWinFormsApp
             // TODO async
             var records = _context.MyEntities.ToList();
 
-            var filePath = "records_export.csv";
-
-            using (var writer = new StreamWriter(filePath))
-            using (var csv = new CsvWriter(writer, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
+            // Show SaveFileDialog to let the user choose the file path and name
+            SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                // Write the records to the CSV file
-                await csv.WriteRecordsAsync(records);
+                Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
+                Title = "Save an Export CSV File",
+                DefaultExt = "csv",
+                FileName = "records_export.csv"
+            };
+
+            // Show the dialog and handle the file selection
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var filePath = saveFileDialog.FileName;
+
+                using (var writer = new StreamWriter(filePath))
+                using (var csv = new CsvWriter(writer, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
+                {
+                    await csv.WriteRecordsAsync(records);
+                }
+
+                // Show MessageBox to the user
+                var result = MessageBox.Show(
+                    $"Data exported successfully to {filePath}. Do you want to open the created file?",
+                    "File Created",
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Information
+                );
+
+                // Check user's response
+                if (result == DialogResult.OK)
+                {
+                    // Open the file in the default application
+                    Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+                }
             }
 
-            var result = MessageBox.Show($"Data exported successfully to {filePath}. DO you want to open created file?", "File was created", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-            // Check user's response
-            if (result == DialogResult.OK)
-            {
-                // Open the file in the default application
-                Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
-            }
         }
     }
 
