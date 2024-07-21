@@ -74,6 +74,7 @@
             buttonExport.TabIndex = 2;
             buttonExport.Text = "Export";
             buttonExport.UseVisualStyleBackColor = false;
+            buttonExport.Click += buttonExport_Click;
             // 
             // radioButtonCsv
             // 

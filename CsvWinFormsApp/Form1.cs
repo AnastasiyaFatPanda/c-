@@ -14,6 +14,7 @@ using System.Drawing;
 using Microsoft.Extensions.FileSystemGlobbing;
 using CsvHelper;
 using System.Globalization;
+using MySqlX.XDevAPI.Common;
 
 namespace CsvWinFormsApp
 {
@@ -173,6 +174,29 @@ namespace CsvWinFormsApp
             await _context.MyEntities.AddRangeAsync(records);
             await _context.SaveChangesAsync();
 
+        }
+
+        private async void buttonExport_Click(object sender, EventArgs e)
+        {
+            // TODO async
+            var records = _context.MyEntities.ToList();
+
+            var filePath = "records_export.csv";
+
+            using (var writer = new StreamWriter(filePath))
+            using (var csv = new CsvWriter(writer, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
+            {
+                // Write the records to the CSV file
+                await csv.WriteRecordsAsync(records);
+            }
+
+            var result = MessageBox.Show($"Data exported successfully to {filePath}. DO you want to open created file?", "File was created", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            // Check user's response
+            if (result == DialogResult.OK)
+            {
+                // Open the file in the default application
+                Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+            }
         }
     }
 
