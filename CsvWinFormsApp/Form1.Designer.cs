@@ -40,6 +40,7 @@
             textBoxCountry = new TextBox();
             labelDbInfo = new Label();
             groupBox = new GroupBox();
+            buttonClearFilters = new Button();
             groupBox.SuspendLayout();
             SuspendLayout();
             // 
@@ -68,9 +69,9 @@
             // 
             buttonExport.BackColor = Color.Thistle;
             buttonExport.ForeColor = SystemColors.GrayText;
-            buttonExport.Location = new Point(259, 86);
+            buttonExport.Location = new Point(259, 172);
             buttonExport.Name = "buttonExport";
-            buttonExport.Size = new Size(175, 137);
+            buttonExport.Size = new Size(175, 51);
             buttonExport.TabIndex = 2;
             buttonExport.Text = "Export";
             buttonExport.UseVisualStyleBackColor = false;
@@ -123,9 +124,11 @@
             textBoxDate.BackColor = Color.OldLace;
             textBoxDate.Location = new Point(21, 110);
             textBoxDate.Name = "textBoxDate";
-            textBoxDate.PlaceholderText = "Date";
+            textBoxDate.PlaceholderText = "Date (dd-MM-yyyy format)";
             textBoxDate.Size = new Size(220, 27);
             textBoxDate.TabIndex = 7;
+            textBoxDate.TextChanged += textBoxDate_TextChanged;
+            textBoxDate.KeyPress += textBoxDate_KeyPress;
             // 
             // textBoxCity
             // 
@@ -159,6 +162,7 @@
             // groupBox
             // 
             groupBox.BackColor = Color.WhiteSmoke;
+            groupBox.Controls.Add(buttonClearFilters);
             groupBox.Controls.Add(textBoxName);
             groupBox.Controls.Add(buttonExport);
             groupBox.Controls.Add(textBoxCountry);
@@ -172,6 +176,18 @@
             groupBox.Size = new Size(456, 238);
             groupBox.TabIndex = 11;
             groupBox.TabStop = false;
+            // 
+            // buttonClearFilters
+            // 
+            buttonClearFilters.BackColor = Color.Thistle;
+            buttonClearFilters.ForeColor = SystemColors.GrayText;
+            buttonClearFilters.Location = new Point(259, 98);
+            buttonClearFilters.Name = "buttonClearFilters";
+            buttonClearFilters.Size = new Size(175, 51);
+            buttonClearFilters.TabIndex = 10;
+            buttonClearFilters.Text = "Clear Filters";
+            buttonClearFilters.UseVisualStyleBackColor = false;
+            buttonClearFilters.Click += buttonClearFilters_Click;
             // 
             // Form1
             // 
@@ -205,5 +221,6 @@
         private TextBox textBoxCountry;
         private Label labelDbInfo;
         private GroupBox groupBox;
+        private Button buttonClearFilters;
     }
 }

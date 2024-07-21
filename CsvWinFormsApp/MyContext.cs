@@ -32,6 +32,38 @@ namespace CsvWinFormsApp
             });
         }
 
+        public IQueryable<Record> GetFilteredEntities(FilterCriteria criteria)
+        {
+            var query = MyEntities.AsQueryable();
+
+            if (!string.IsNullOrEmpty(criteria.Name))
+            {
+                query = query.Where(e => e.Name.Contains(criteria.Name));
+            }
+
+            if (!string.IsNullOrEmpty(criteria.Surname))
+            {
+                query = query.Where(e => e.Surname.Contains(criteria.Surname));
+            }
+
+            if (criteria.Date.HasValue)
+            {
+                query = query.Where(e => e.Date > criteria.Date.Value);
+            }
+
+            if (!string.IsNullOrEmpty(criteria.City))
+            {
+                query = query.Where(e => e.City == criteria.City);
+            }
+
+            if (!string.IsNullOrEmpty(criteria.Country))
+            {
+                query = query.Where(e => e.Country == criteria.Country);
+            }
+
+            return query;
+        }
+
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
         //    base.OnModelCreating(modelBuilder);

@@ -7,6 +7,7 @@ using MySqlX.XDevAPI;
 using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Diagnostics;
+using ClosedXML.Excel;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
@@ -15,6 +16,8 @@ using Microsoft.Extensions.FileSystemGlobbing;
 using CsvHelper;
 using System.Globalization;
 using MySqlX.XDevAPI.Common;
+using System.Text.RegularExpressions;
+using DocumentFormat.OpenXml.InkML;
 
 namespace CsvWinFormsApp
 {
@@ -22,7 +25,7 @@ namespace CsvWinFormsApp
     public partial class Form1 : Form
     {
         private readonly MyContext _context;
-
+        private char _lastKeyPressed;
         public Form1()
         {
             try
@@ -122,7 +125,7 @@ namespace CsvWinFormsApp
             {
                 // Get the selected file's path
                 string selectedFilePath = openFileDialog.FileName;
-                int BatchSize = 3;
+                int BatchSize = 1000;
                 int addedRecords = 0;
                 var records = new List<Record>();
 
@@ -152,7 +155,7 @@ namespace CsvWinFormsApp
                             await InsertRecordsAsync(records);
                             addedRecords += BatchSize;
                             labelDbInfo.Text = $"Inserted {addedRecords} records...";
-                            await Task.Delay(2000); // Wait for 1 second before processing the next batch
+                            // await Task.Delay(2000); // Wait for 1 second before processing the next batch
                             records.Clear();
                         }
                     }
@@ -170,28 +173,53 @@ namespace CsvWinFormsApp
 
         private async Task InsertRecordsAsync(List<Record> records)
         {
+            try
+            {
+                await _context.MyEntities.AddRangeAsync(records);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                  $"Cannot save data. \n\n Error: \n {ex.Message}",
+                  "Error",
+                  MessageBoxButtons.OK,
+                  MessageBoxIcon.Error
+                );
 
-            await _context.MyEntities.AddRangeAsync(records);
-            await _context.SaveChangesAsync();
+            }
 
         }
 
         private async void buttonExport_Click(object sender, EventArgs e)
         {
             // TODO async
-            var records = _context.MyEntities.ToList();
+            List<Record> records = GetFilteredRecords();
+
+            //TODO filter records
 
             // Show SaveFileDialog to let the user choose the file path and name
-            SaveFileDialog saveFileDialog = new SaveFileDialog
-            {
-                Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
-                Title = "Save an Export CSV File",
-                DefaultExt = "csv",
-                FileName = "records_export.csv"
-            };
+            SaveFileDialog saveFileDialog = radioButtonCsv.Checked
+                ? new SaveFileDialog
+                {
+                    Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
+                    Title = "Save an Export CSV File",
+                    DefaultExt = "csv",
+                    FileName = "records_export.csv"
+                }
+                : new SaveFileDialog
+                {
+                    Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*",
+                    Title = "Save an Export File",
+                    DefaultExt = "xlsx",
+                    FileName = "records_export.xlsx"
+                };
+
+            var showsaveDialog = saveFileDialog.ShowDialog();
 
             // Show the dialog and handle the file selection
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            // CSV format
+            if (showsaveDialog == DialogResult.OK && radioButtonCsv.Checked)
             {
                 var filePath = saveFileDialog.FileName;
 
@@ -216,7 +244,160 @@ namespace CsvWinFormsApp
                     Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
                 }
             }
+            // Excel format
+            else if (showsaveDialog == DialogResult.OK)
+            {
+                {
+                    var filePath = saveFileDialog.FileName;
 
+                    // Create a new workbook and worksheet
+                    using (var workbook = new XLWorkbook())
+                    {
+                        var worksheet = workbook.Worksheets.Add("Records");
+
+                        // Add header row
+                        worksheet.Cell(1, 1).Value = "Id";
+                        worksheet.Cell(1, 2).Value = "Name";
+                        worksheet.Cell(1, 3).Value = "Surname";
+                        worksheet.Cell(1, 4).Value = "Date";
+                        worksheet.Cell(1, 5).Value = "City";
+                        worksheet.Cell(1, 6).Value = "Country";
+
+                        // Add data rows
+                        for (int i = 0; i < records.Count; i++)
+                        {
+                            var record = records[i];
+                            worksheet.Cell(i + 2, 1).Value = record.Id.ToString();
+                            worksheet.Cell(i + 2, 2).Value = record.Name;
+                            worksheet.Cell(i + 2, 3).Value = record.Surname;
+                            worksheet.Cell(i + 2, 4).Value = record.Date;
+                            worksheet.Cell(i + 2, 5).Value = record.City;
+                            worksheet.Cell(i + 2, 6).Value = record.Country;
+                        }
+
+                        // Save the workbook
+                        workbook.SaveAs(filePath);
+                    }
+
+                    // Show MessageBox to the user
+                    var result = MessageBox.Show(
+                        $"Data exported successfully to {filePath}. Do you want to open the created file?",
+                        "File Created",
+                        MessageBoxButtons.OKCancel,
+                        MessageBoxIcon.Information
+                    );
+
+                    // Check user's response
+                    if (result == DialogResult.OK)
+                    {
+                        // Open the file in the default application
+                        Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+                    }
+                }
+            }
+
+        }
+
+
+        private List<Record> GetFilteredRecords()
+        {
+          
+            string dateString = textBoxDate.Text;
+            DateTime filterDate;
+            try
+            {
+                DateTime.TryParse(dateString, out filterDate);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Incorrect Date value");
+                throw ex;
+            }
+
+            var criteria = new FilterCriteria
+            {
+                Name = textBoxName.Text,
+                Surname = textBoxSurname.Text,
+                Date = filterDate,
+                City = textBoxCity.Text,
+                Country = textBoxCountry.Text,
+
+            };
+
+            List<Record> records = _context.GetFilteredEntities(criteria).ToList();
+            return records;
+        }
+        private void buttonClearFilters_Click(object sender, EventArgs e)
+        {
+            radioButtonCsv.Checked = true;
+
+            foreach (Control control in groupBox.Controls)
+            {
+                if (control.GetType() == typeof(TextBox))
+                    control.Text = null;
+            }
+        }
+
+        private void textBoxDate_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Store the last key pressed
+            _lastKeyPressed = e.KeyChar;
+
+            // Allow only digits and '-' characters
+            if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back && e.KeyChar != '-')
+            {
+                e.Handled = true; // Ignore the key press
+            }
+        }
+
+        private void textBoxDate_TextChanged(object sender, EventArgs e)
+        {
+            string datePattern = @"^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-(19|20)\d\d$";
+            string input = textBoxDate.Text;
+
+            if (input.Length == 0 || _lastKeyPressed == (char)Keys.Back) return;
+
+            // Remove non-digit and non-hyphen characters
+
+            // Format the text to dd-MM-yyyy
+            if (input.Length == 2)
+            {
+                input = input.Insert(2, "-");
+            }
+            if (input.Length == 5)
+            {
+                input = input.Insert(5, "-");
+            }
+
+            // Ensure the text doesn't exceed the desired length
+            if (input.Length > 10)
+            {
+                input = input.Substring(0, 10);
+            }
+
+            if (input.Length == 10)
+            {
+                if (Regex.IsMatch(input, datePattern))
+                {
+                    DateTime parsedDate;
+                    if (DateTime.TryParseExact(input, "dd-MM-yyyy", null, System.Globalization.DateTimeStyles.None, out parsedDate))
+                    {
+                        MessageBox.Show("Valid date: " + parsedDate.ToString("dd-MM-yyyy"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Invalid date. Please enter a valid date in dd-MM-yyyy format.");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Invalid format. Please use dd-MM-yyyy format.");
+                    // input = textBoxDate.Text.Substring(0, input.Length - 1);
+                }
+            }
+
+            textBoxDate.Text = input;
+            textBoxDate.SelectionStart = textBoxDate.Text.Length; // Move cursor to the end
         }
     }
 
