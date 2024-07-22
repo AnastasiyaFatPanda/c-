@@ -25,8 +25,8 @@ namespace CsvWinFormsApp
             optionsBuilder.UseSqlServer(_connectionString, sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5, // The maximum number of retry attempts
-                    maxRetryDelay: TimeSpan.FromSeconds(10), // The maximum delay between retries
+                    maxRetryCount: 3, // The maximum number of retry attempts
+                    maxRetryDelay: TimeSpan.FromSeconds(3), // The maximum delay between retries
                     errorNumbersToAdd: null // Additional error numbers to consider transient
                 );
             });
@@ -63,12 +63,6 @@ namespace CsvWinFormsApp
 
             return query;
         }
-
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    base.OnModelCreating(modelBuilder);
-        //    modelBuilder.HasDefaultSchema("education");
-        //}
     }
 
 }

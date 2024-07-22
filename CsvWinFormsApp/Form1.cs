@@ -18,6 +18,7 @@ using System.Globalization;
 using MySqlX.XDevAPI.Common;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.InkML;
+using Microsoft.EntityFrameworkCore;
 
 namespace CsvWinFormsApp
 {
@@ -26,29 +27,52 @@ namespace CsvWinFormsApp
     {
         private readonly MyContext _context;
         private char _lastKeyPressed;
+        private string _db;
+
         public Form1()
         {
+            InitializeComponent();
+
+            // Display the loading form
+            LoadingMessageForm loadingForm = new LoadingMessageForm("Trying to connect ot specified Database...", "Connecting to DB");
+            Task.Run(() =>
+            {
+                Application.Run(loadingForm);
+            });
+
+            // Simulate some work
+            Task.Delay(1000).Wait(); // Simulate 1 second delay for loading
+
             try
             {
-                InitializeComponent();
                 // Get the connection string from appsettings.json
-                string connectionString = ConfigurationHelper.GetConnectionString("DefaultConnection");
+                string connectionString = ConfigurationHelper.GetConnectionString();
+                _db = ConfigurationHelper.GetDatabaseName();
 
                 // Initialize DbContext
                 _context = new MyContext(connectionString);
                 CheckNumOfDBRecords();
+
+                // Close the loading form
+                loadingForm.Invoke(new Action(() => loadingForm.Close()));
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                // Close the loading form
+                loadingForm.Invoke(new Action(() => loadingForm.Close()));
+
+                var result = MessageBox.Show(
                   $"Cannot run the app. Please, check your VPN connection. \n\n Error: \n {ex.Message}",
                   "Error",
                   MessageBoxButtons.OK,
                   MessageBoxIcon.Error
                 );
 
-                // Exit the application with an error code
-                // Environment.Exit(1);
+                if (result != DialogResult.None)
+                {
+                    // Exit the application with an error code
+                    Environment.Exit(1);
+                }
             }
         }
 
@@ -58,7 +82,10 @@ namespace CsvWinFormsApp
             IQueryable<Record> entities = from entity in _context.MyEntities
                                           where entity.Date > new DateTime(2000, 01, 01)
                                           select entity;
-            label1.Text = string.Join("\n", entities.First()) + $"\n\n count: {entities.ToList().Count.ToString()}";
+            if (entities.ToList().Count() != 0)
+                label1.Text = string.Join("\n", entities.First()) + $"\n\n count: {entities.ToList().Count.ToString()} {_db}";
+            else
+                label1.Text = "No data";
         }
 
 
@@ -99,6 +126,13 @@ namespace CsvWinFormsApp
                 if (control.GetType() != typeof(RadioButton))
                     control.BackColor = enable ? Color.Wheat : Color.LightGray;
             }
+
+            if (enable)
+            {
+                buttonDeleteDbData.BackColor = Color.LightPink;
+                buttonDeleteDbData.ForeColor = Color.Red;
+            }
+
         }
 
         private async void buttonImport_Click(object sender, EventArgs e)
@@ -125,48 +159,68 @@ namespace CsvWinFormsApp
             {
                 // Get the selected file's path
                 string selectedFilePath = openFileDialog.FileName;
-                int BatchSize = 1000;
+                int BatchSize = 1;
                 int addedRecords = 0;
                 var records = new List<Record>();
+                LoadingMessageForm loadingForm = new LoadingMessageForm("Trying to connect ot specified Database...", "Import data to DB");
+                loadingForm.Show();
 
-                using (var reader = new StreamReader(selectedFilePath))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                try
                 {
-                    // Read the header before reading any fields
-                    await csv.ReadAsync();
-                    csv.ReadHeader();
-
-                    while (await csv.ReadAsync())
+                    using (var reader = new StreamReader(selectedFilePath))
+                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                     {
-                        var record = new Record
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = csv.GetField<string>("name"),
-                            Surname = csv.GetField<string>("surname"),
-                            Date = csv.GetField<DateTime>("date"),
-                            City = csv.GetField<string>("city"),
-                            Country = csv.GetField<string>("country")
-                        };
+                        // Read the header before reading any fields
+                        await csv.ReadAsync();
+                        csv.ReadHeader();
 
-                        records.Add(record);
-
-                        if (records.Count == BatchSize)
+                        while (await csv.ReadAsync())
                         {
-                            await InsertRecordsAsync(records);
-                            addedRecords += BatchSize;
-                            labelDbInfo.Text = $"Inserted {addedRecords} records...";
-                            // await Task.Delay(2000); // Wait for 1 second before processing the next batch
-                            records.Clear();
+                            var record = new Record
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = csv.GetField<string>("name"),
+                                Surname = csv.GetField<string>("surname"),
+                                Date = csv.GetField<DateTime>("date"),
+                                City = csv.GetField<string>("city"),
+                                Country = csv.GetField<string>("country")
+                            };
+
+                            records.Add(record);
+
+                            if (records.Count == BatchSize)
+                            {
+                                loadingForm.Invoke(new Action(() => loadingForm.UpdateMessage($"Inserted {addedRecords} records...")));
+                                await InsertRecordsAsync(records);
+                                addedRecords += BatchSize;
+                                labelDbInfo.Text = $"Inserted {addedRecords} records...";
+                                await Task.Delay(1000); // Wait for 1 second before processing the next batch
+                                records.Clear();
+                            }
                         }
-                    }
 
-                    if (records.Any())
-                    {
-                        addedRecords += records.Count;
-                        await InsertRecordsAsync(records);
+                        if (records.Count() > 0)
+                        {
+                            addedRecords += records.Count;
+                            await InsertRecordsAsync(records);
+                            // Close the loading form
+                        }
+
+                        loadingForm.Invoke(new Action(() => loadingForm.Close()));
+                        // Show success message
                         MessageBox.Show($"Inserted {addedRecords} records!");
                         CheckNumOfDBRecords();
                     }
+                }
+                catch (Exception ex)
+                {
+                    loadingForm.Invoke(new Action(() => loadingForm.Close()));
+                    MessageBox.Show(
+                      $"Cannot import file data from the file to database. \n\n Error: \n {ex.Message}",
+                      "Error",
+                      MessageBoxButtons.OK,
+                      MessageBoxIcon.Error
+                    );
                 }
             }
         }
@@ -188,7 +242,6 @@ namespace CsvWinFormsApp
                 );
 
             }
-
         }
 
         private async void buttonExport_Click(object sender, EventArgs e)
@@ -301,7 +354,7 @@ namespace CsvWinFormsApp
 
         private List<Record> GetFilteredRecords()
         {
-          
+
             string dateString = textBoxDate.Text;
             DateTime filterDate;
             try
@@ -398,6 +451,28 @@ namespace CsvWinFormsApp
 
             textBoxDate.Text = input;
             textBoxDate.SelectionStart = textBoxDate.Text.Length; // Move cursor to the end
+        }
+
+        private async void buttonDeleteDbData_Click(object sender, EventArgs e)
+        {
+            // Show MessageBox to the user
+            var result = MessageBox.Show(
+                $"Are you sure you want to delete all records in DB?",
+                "Delete all DB records",
+                MessageBoxButtons.OKCancel,
+                MessageBoxIcon.Information
+            );
+
+            // Check user's response
+            if (result == DialogResult.OK)
+            {
+                // Delete all data from MyEntities table
+                var sql = $"DELETE FROM {_db}";
+                await _context.Database.ExecuteSqlRawAsync(sql);
+
+                CheckNumOfDBRecords();
+
+            }
         }
     }
 

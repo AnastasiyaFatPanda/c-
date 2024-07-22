@@ -40,14 +40,16 @@
             textBoxCountry = new TextBox();
             labelDbInfo = new Label();
             groupBox = new GroupBox();
+            buttonDeleteDbData = new Button();
             buttonClearFilters = new Button();
+            progressBar1 = new ProgressBar();
             groupBox.SuspendLayout();
             SuspendLayout();
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(13, 343);
+            label1.Location = new Point(12, 384);
             label1.Name = "label1";
             label1.Size = new Size(50, 20);
             label1.TabIndex = 0;
@@ -162,6 +164,7 @@
             // groupBox
             // 
             groupBox.BackColor = Color.WhiteSmoke;
+            groupBox.Controls.Add(buttonDeleteDbData);
             groupBox.Controls.Add(buttonClearFilters);
             groupBox.Controls.Add(textBoxName);
             groupBox.Controls.Add(buttonExport);
@@ -173,9 +176,19 @@
             groupBox.Controls.Add(textBoxSurname);
             groupBox.Location = new Point(13, 102);
             groupBox.Name = "groupBox";
-            groupBox.Size = new Size(456, 238);
+            groupBox.Size = new Size(456, 279);
             groupBox.TabIndex = 11;
             groupBox.TabStop = false;
+            // 
+            // buttonDeleteDbData
+            // 
+            buttonDeleteDbData.Location = new Point(20, 244);
+            buttonDeleteDbData.Name = "buttonDeleteDbData";
+            buttonDeleteDbData.Size = new Size(414, 29);
+            buttonDeleteDbData.TabIndex = 12;
+            buttonDeleteDbData.Text = "Delete all DB data";
+            buttonDeleteDbData.UseVisualStyleBackColor = true;
+            buttonDeleteDbData.Click += buttonDeleteDbData_Click;
             // 
             // buttonClearFilters
             // 
@@ -189,17 +202,28 @@
             buttonClearFilters.UseVisualStyleBackColor = false;
             buttonClearFilters.Click += buttonClearFilters_Click;
             // 
+            // progressBar1
+            // 
+            progressBar1.Location = new Point(272, 67);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(197, 29);
+            progressBar1.Style = ProgressBarStyle.Marquee;
+            progressBar1.TabIndex = 12;
+            progressBar1.Visible = false;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(786, 484);
+            Controls.Add(progressBar1);
             Controls.Add(groupBox);
             Controls.Add(labelDbInfo);
             Controls.Add(buttonImport);
             Controls.Add(label1);
             Name = "Form1";
-            Text = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "QuickCSVExcel";
             Load += Form1_Load;
             groupBox.ResumeLayout(false);
             groupBox.PerformLayout();
@@ -222,5 +246,7 @@
         private Label labelDbInfo;
         private GroupBox groupBox;
         private Button buttonClearFilters;
+        private Button buttonDeleteDbData;
+        private ProgressBar progressBar1;
     }
 }

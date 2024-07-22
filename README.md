@@ -14,15 +14,13 @@ C# course
 ### Config File Example
 Create 'appsettings.json` file at the root of the project
 
-	{
-		"DatabaseSettings": {
-			"Host": "...",
-			"Schema": "...",
-			"InitialCatalog": "...",
-			"Database":  "...",
-			"User": "...",
-			"Password": "...",
-			"Encrypt": true,
-			"TrustServerCertificate": true
+		{
+			"ConnectionStrings": {
+				"DefaultConnection": "..."
+			},
+			"DatabaseInfo": {
+				"Catalog": "...",
+				"Schema": "...",
+				"DB": "..."
+			}
 		}
-	}
