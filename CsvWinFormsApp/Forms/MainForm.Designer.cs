@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
             buttonImport = new Button();
             buttonExport = new Button();
             radioButtonCsv = new RadioButton();
@@ -40,6 +39,10 @@
             textBoxCountry = new TextBox();
             labelDbInfo = new Label();
             groupBox = new GroupBox();
+            labelInfo3 = new Label();
+            labelInfo2 = new Label();
+            labelInfo1 = new Label();
+            radioButtonXML = new RadioButton();
             buttonDeleteDbData = new Button();
             buttonClearFilters = new Button();
             panel1 = new Panel();
@@ -47,22 +50,13 @@
             panel1.SuspendLayout();
             SuspendLayout();
             // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(12, 393);
-            label1.Name = "label1";
-            label1.Size = new Size(50, 20);
-            label1.TabIndex = 0;
-            label1.Text = "label1";
-            // 
             // buttonImport
             // 
             buttonImport.BackColor = Color.FromArgb(225, 215, 179);
             buttonImport.ForeColor = SystemColors.GrayText;
             buttonImport.Location = new Point(12, 12);
             buttonImport.Name = "buttonImport";
-            buttonImport.Size = new Size(457, 42);
+            buttonImport.Size = new Size(559, 42);
             buttonImport.TabIndex = 1;
             buttonImport.Text = "Import";
             buttonImport.UseVisualStyleBackColor = false;
@@ -72,9 +66,9 @@
             // 
             buttonExport.BackColor = Color.FromArgb(225, 215, 179);
             buttonExport.ForeColor = SystemColors.GrayText;
-            buttonExport.Location = new Point(259, 172);
+            buttonExport.Location = new Point(361, 235);
             buttonExport.Name = "buttonExport";
-            buttonExport.Size = new Size(175, 51);
+            buttonExport.Size = new Size(175, 76);
             buttonExport.TabIndex = 2;
             buttonExport.Text = "Export";
             buttonExport.UseVisualStyleBackColor = false;
@@ -85,7 +79,7 @@
             radioButtonCsv.AutoSize = true;
             radioButtonCsv.Checked = true;
             radioButtonCsv.ForeColor = SystemColors.ControlDarkDark;
-            radioButtonCsv.Location = new Point(271, 26);
+            radioButtonCsv.Location = new Point(366, 68);
             radioButtonCsv.Name = "radioButtonCsv";
             radioButtonCsv.Size = new Size(56, 24);
             radioButtonCsv.TabIndex = 3;
@@ -97,7 +91,7 @@
             // 
             radioButtonExcel.AutoSize = true;
             radioButtonExcel.ForeColor = SystemColors.ControlDarkDark;
-            radioButtonExcel.Location = new Point(271, 56);
+            radioButtonExcel.Location = new Point(366, 98);
             radioButtonExcel.Name = "radioButtonExcel";
             radioButtonExcel.Size = new Size(64, 24);
             radioButtonExcel.TabIndex = 4;
@@ -107,28 +101,29 @@
             // textBoxName
             // 
             textBoxName.BackColor = Color.FloralWhite;
-            textBoxName.Location = new Point(20, 26);
+            textBoxName.Location = new Point(20, 68);
             textBoxName.Name = "textBoxName";
             textBoxName.PlaceholderText = "Name";
-            textBoxName.Size = new Size(221, 27);
+            textBoxName.Size = new Size(317, 27);
             textBoxName.TabIndex = 5;
+            textBoxName.KeyPress += textBoxName_KeyPress;
             // 
             // textBoxSurname
             // 
             textBoxSurname.BackColor = Color.FloralWhite;
-            textBoxSurname.Location = new Point(21, 66);
+            textBoxSurname.Location = new Point(21, 108);
             textBoxSurname.Name = "textBoxSurname";
             textBoxSurname.PlaceholderText = "Surname";
-            textBoxSurname.Size = new Size(220, 27);
+            textBoxSurname.Size = new Size(316, 27);
             textBoxSurname.TabIndex = 6;
             // 
             // textBoxDate
             // 
             textBoxDate.BackColor = Color.FloralWhite;
-            textBoxDate.Location = new Point(21, 110);
+            textBoxDate.Location = new Point(20, 284);
             textBoxDate.Name = "textBoxDate";
-            textBoxDate.PlaceholderText = "Date (dd-MM-yyyy format)";
-            textBoxDate.Size = new Size(220, 27);
+            textBoxDate.PlaceholderText = "Date (dd/MM/yyyy format)";
+            textBoxDate.Size = new Size(316, 27);
             textBoxDate.TabIndex = 7;
             textBoxDate.TextChanged += textBoxDate_TextChanged;
             textBoxDate.KeyPress += textBoxDate_KeyPress;
@@ -136,19 +131,19 @@
             // textBoxCity
             // 
             textBoxCity.BackColor = Color.FloralWhite;
-            textBoxCity.Location = new Point(20, 153);
+            textBoxCity.Location = new Point(19, 156);
             textBoxCity.Name = "textBoxCity";
             textBoxCity.PlaceholderText = "City";
-            textBoxCity.Size = new Size(220, 27);
+            textBoxCity.Size = new Size(316, 27);
             textBoxCity.TabIndex = 8;
             // 
             // textBoxCountry
             // 
             textBoxCountry.BackColor = Color.FloralWhite;
-            textBoxCountry.Location = new Point(20, 196);
+            textBoxCountry.Location = new Point(19, 199);
             textBoxCountry.Name = "textBoxCountry";
             textBoxCountry.PlaceholderText = "Country";
-            textBoxCountry.Size = new Size(220, 27);
+            textBoxCountry.Size = new Size(316, 27);
             textBoxCountry.TabIndex = 9;
             // 
             // labelDbInfo
@@ -158,13 +153,17 @@
             labelDbInfo.ForeColor = SystemColors.ControlDarkDark;
             labelDbInfo.Location = new Point(20, 10);
             labelDbInfo.Name = "labelDbInfo";
-            labelDbInfo.Size = new Size(50, 20);
+            labelDbInfo.Size = new Size(88, 20);
             labelDbInfo.TabIndex = 10;
-            labelDbInfo.Text = "label2";
+            labelDbInfo.Text = "labelDbInfo";
             // 
             // groupBox
             // 
             groupBox.BackColor = Color.FromArgb(216, 228, 231);
+            groupBox.Controls.Add(labelInfo3);
+            groupBox.Controls.Add(labelInfo2);
+            groupBox.Controls.Add(labelInfo1);
+            groupBox.Controls.Add(radioButtonXML);
             groupBox.Controls.Add(buttonDeleteDbData);
             groupBox.Controls.Add(buttonClearFilters);
             groupBox.Controls.Add(textBoxName);
@@ -177,27 +176,68 @@
             groupBox.Controls.Add(textBoxSurname);
             groupBox.Location = new Point(13, 102);
             groupBox.Name = "groupBox";
-            groupBox.Size = new Size(456, 279);
+            groupBox.Size = new Size(558, 387);
             groupBox.TabIndex = 11;
             groupBox.TabStop = false;
             // 
+            // labelInfo3
+            // 
+            labelInfo3.AutoSize = true;
+            labelInfo3.ForeColor = SystemColors.WindowFrame;
+            labelInfo3.Location = new Point(361, 10);
+            labelInfo3.Name = "labelInfo3";
+            labelInfo3.Size = new Size(170, 20);
+            labelInfo3.TabIndex = 16;
+            labelInfo3.Text = "Select Export file format";
+            // 
+            // labelInfo2
+            // 
+            labelInfo2.ForeColor = SystemColors.WindowFrame;
+            labelInfo2.Location = new Point(21, 233);
+            labelInfo2.Name = "labelInfo2";
+            labelInfo2.Size = new Size(316, 48);
+            labelInfo2.TabIndex = 15;
+            labelInfo2.Text = "You can enter only digits. The filter must be in dd/MM/yyyy format";
+            // 
+            // labelInfo1
+            // 
+            labelInfo1.ForeColor = SystemColors.WindowFrame;
+            labelInfo1.Location = new Point(19, 10);
+            labelInfo1.Name = "labelInfo1";
+            labelInfo1.Size = new Size(314, 42);
+            labelInfo1.TabIndex = 14;
+            labelInfo1.Text = "You can enter only letters. The filter will select records, which contain entered values.";
+            // 
+            // radioButtonXML
+            // 
+            radioButtonXML.AutoSize = true;
+            radioButtonXML.ForeColor = SystemColors.ControlDarkDark;
+            radioButtonXML.Location = new Point(366, 128);
+            radioButtonXML.Name = "radioButtonXML";
+            radioButtonXML.Size = new Size(59, 24);
+            radioButtonXML.TabIndex = 13;
+            radioButtonXML.Text = "XML";
+            radioButtonXML.UseVisualStyleBackColor = true;
+            // 
             // buttonDeleteDbData
             // 
-            buttonDeleteDbData.Location = new Point(20, 244);
+            buttonDeleteDbData.BackColor = Color.FromArgb(225, 210, 220);
+            buttonDeleteDbData.ForeColor = Color.FromArgb(154, 79, 79);
+            buttonDeleteDbData.Location = new Point(19, 336);
             buttonDeleteDbData.Name = "buttonDeleteDbData";
-            buttonDeleteDbData.Size = new Size(414, 29);
+            buttonDeleteDbData.Size = new Size(531, 29);
             buttonDeleteDbData.TabIndex = 12;
             buttonDeleteDbData.Text = "Delete all DB data";
-            buttonDeleteDbData.UseVisualStyleBackColor = true;
+            buttonDeleteDbData.UseVisualStyleBackColor = false;
             buttonDeleteDbData.Click += buttonDeleteDbData_Click;
             // 
             // buttonClearFilters
             // 
             buttonClearFilters.BackColor = Color.FromArgb(225, 215, 179);
             buttonClearFilters.ForeColor = SystemColors.GrayText;
-            buttonClearFilters.Location = new Point(259, 98);
+            buttonClearFilters.Location = new Point(361, 158);
             buttonClearFilters.Name = "buttonClearFilters";
-            buttonClearFilters.Size = new Size(175, 51);
+            buttonClearFilters.Size = new Size(175, 71);
             buttonClearFilters.TabIndex = 10;
             buttonClearFilters.Text = "Clear Filters";
             buttonClearFilters.UseVisualStyleBackColor = false;
@@ -209,7 +249,7 @@
             panel1.Controls.Add(labelDbInfo);
             panel1.Location = new Point(13, 57);
             panel1.Name = "panel1";
-            panel1.Size = new Size(456, 39);
+            panel1.Size = new Size(558, 39);
             panel1.TabIndex = 12;
             // 
             // MainForm
@@ -217,26 +257,21 @@
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(209, 218, 220);
-            ClientSize = new Size(487, 484);
+            ClientSize = new Size(583, 501);
             Controls.Add(panel1);
             Controls.Add(groupBox);
             Controls.Add(buttonImport);
-            Controls.Add(label1);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "QuickCSVExcel";
-            Load += Form1_Load;
+            Text = "QuickCSVExcelXML";
             groupBox.ResumeLayout(false);
             groupBox.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
-
-        private Label label1;
         private Button buttonImport;
         private Button buttonExport;
         private RadioButton radioButtonCsv;
@@ -251,5 +286,11 @@
         private Button buttonClearFilters;
         private Button buttonDeleteDbData;
         private Panel panel1;
+        private RadioButton radioButtonXML;
+        private ToolTip toolTipName;
+        private ToolTip toolTipDate;
+        private Label labelInfo1;
+        private Label labelInfo3;
+        private Label labelInfo2;
     }
 }
