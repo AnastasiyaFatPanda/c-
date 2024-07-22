@@ -9,7 +9,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using System.Configuration;
 
 
-namespace CsvWinFormsApp
+namespace CsvWinFormsApp.Utilities
 {
     public static class ConfigurationHelper
     {

@@ -1,6 +1,6 @@
 ﻿namespace CsvWinFormsApp
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         ///  Required designer variable.
@@ -42,14 +42,15 @@
             groupBox = new GroupBox();
             buttonDeleteDbData = new Button();
             buttonClearFilters = new Button();
-            progressBar1 = new ProgressBar();
+            panel1 = new Panel();
             groupBox.SuspendLayout();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(12, 384);
+            label1.Location = new Point(12, 393);
             label1.Name = "label1";
             label1.Size = new Size(50, 20);
             label1.TabIndex = 0;
@@ -57,7 +58,7 @@
             // 
             // buttonImport
             // 
-            buttonImport.BackColor = Color.Thistle;
+            buttonImport.BackColor = Color.FromArgb(225, 215, 179);
             buttonImport.ForeColor = SystemColors.GrayText;
             buttonImport.Location = new Point(12, 12);
             buttonImport.Name = "buttonImport";
@@ -69,7 +70,7 @@
             // 
             // buttonExport
             // 
-            buttonExport.BackColor = Color.Thistle;
+            buttonExport.BackColor = Color.FromArgb(225, 215, 179);
             buttonExport.ForeColor = SystemColors.GrayText;
             buttonExport.Location = new Point(259, 172);
             buttonExport.Name = "buttonExport";
@@ -105,7 +106,7 @@
             // 
             // textBoxName
             // 
-            textBoxName.BackColor = Color.OldLace;
+            textBoxName.BackColor = Color.FloralWhite;
             textBoxName.Location = new Point(20, 26);
             textBoxName.Name = "textBoxName";
             textBoxName.PlaceholderText = "Name";
@@ -114,7 +115,7 @@
             // 
             // textBoxSurname
             // 
-            textBoxSurname.BackColor = Color.OldLace;
+            textBoxSurname.BackColor = Color.FloralWhite;
             textBoxSurname.Location = new Point(21, 66);
             textBoxSurname.Name = "textBoxSurname";
             textBoxSurname.PlaceholderText = "Surname";
@@ -123,7 +124,7 @@
             // 
             // textBoxDate
             // 
-            textBoxDate.BackColor = Color.OldLace;
+            textBoxDate.BackColor = Color.FloralWhite;
             textBoxDate.Location = new Point(21, 110);
             textBoxDate.Name = "textBoxDate";
             textBoxDate.PlaceholderText = "Date (dd-MM-yyyy format)";
@@ -134,7 +135,7 @@
             // 
             // textBoxCity
             // 
-            textBoxCity.BackColor = Color.OldLace;
+            textBoxCity.BackColor = Color.FloralWhite;
             textBoxCity.Location = new Point(20, 153);
             textBoxCity.Name = "textBoxCity";
             textBoxCity.PlaceholderText = "City";
@@ -143,7 +144,7 @@
             // 
             // textBoxCountry
             // 
-            textBoxCountry.BackColor = Color.OldLace;
+            textBoxCountry.BackColor = Color.FloralWhite;
             textBoxCountry.Location = new Point(20, 196);
             textBoxCountry.Name = "textBoxCountry";
             textBoxCountry.PlaceholderText = "Country";
@@ -154,8 +155,8 @@
             // 
             labelDbInfo.AutoSize = true;
             labelDbInfo.BackColor = Color.OldLace;
-            labelDbInfo.ForeColor = Color.Sienna;
-            labelDbInfo.Location = new Point(13, 70);
+            labelDbInfo.ForeColor = SystemColors.ControlDarkDark;
+            labelDbInfo.Location = new Point(20, 10);
             labelDbInfo.Name = "labelDbInfo";
             labelDbInfo.Size = new Size(50, 20);
             labelDbInfo.TabIndex = 10;
@@ -163,7 +164,7 @@
             // 
             // groupBox
             // 
-            groupBox.BackColor = Color.WhiteSmoke;
+            groupBox.BackColor = Color.FromArgb(216, 228, 231);
             groupBox.Controls.Add(buttonDeleteDbData);
             groupBox.Controls.Add(buttonClearFilters);
             groupBox.Controls.Add(textBoxName);
@@ -192,7 +193,7 @@
             // 
             // buttonClearFilters
             // 
-            buttonClearFilters.BackColor = Color.Thistle;
+            buttonClearFilters.BackColor = Color.FromArgb(225, 215, 179);
             buttonClearFilters.ForeColor = SystemColors.GrayText;
             buttonClearFilters.Location = new Point(259, 98);
             buttonClearFilters.Name = "buttonClearFilters";
@@ -202,31 +203,33 @@
             buttonClearFilters.UseVisualStyleBackColor = false;
             buttonClearFilters.Click += buttonClearFilters_Click;
             // 
-            // progressBar1
+            // panel1
             // 
-            progressBar1.Location = new Point(272, 67);
-            progressBar1.Name = "progressBar1";
-            progressBar1.Size = new Size(197, 29);
-            progressBar1.Style = ProgressBarStyle.Marquee;
-            progressBar1.TabIndex = 12;
-            progressBar1.Visible = false;
+            panel1.BackColor = Color.FromArgb(216, 228, 231);
+            panel1.Controls.Add(labelDbInfo);
+            panel1.Location = new Point(13, 57);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(456, 39);
+            panel1.TabIndex = 12;
             // 
-            // Form1
+            // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(786, 484);
-            Controls.Add(progressBar1);
+            BackColor = Color.FromArgb(209, 218, 220);
+            ClientSize = new Size(487, 484);
+            Controls.Add(panel1);
             Controls.Add(groupBox);
-            Controls.Add(labelDbInfo);
             Controls.Add(buttonImport);
             Controls.Add(label1);
-            Name = "Form1";
+            Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "QuickCSVExcel";
             Load += Form1_Load;
             groupBox.ResumeLayout(false);
             groupBox.PerformLayout();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -247,6 +250,6 @@
         private GroupBox groupBox;
         private Button buttonClearFilters;
         private Button buttonDeleteDbData;
-        private ProgressBar progressBar1;
+        private Panel panel1;
     }
 }

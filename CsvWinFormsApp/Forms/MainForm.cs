@@ -19,17 +19,19 @@ using MySqlX.XDevAPI.Common;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
+using CsvWinFormsApp.Models;
+using CsvWinFormsApp.Contexts;
+using CsvWinFormsApp.Utilities;
 
 namespace CsvWinFormsApp
 {
-
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         private readonly MyContext _context;
         private char _lastKeyPressed;
         private string _db;
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
 
@@ -51,7 +53,7 @@ namespace CsvWinFormsApp
 
                 // Initialize DbContext
                 _context = new MyContext(connectionString);
-                CheckNumOfDBRecords();
+                UpdateFormComponents();
 
                 // Close the loading form
                 loadingForm.Invoke(new Action(() => loadingForm.Close()));
@@ -89,7 +91,7 @@ namespace CsvWinFormsApp
         }
 
 
-        public int CheckNumOfDBRecords()
+        public int UpdateFormComponents()
         {
             List<Record> entities = _context.MyEntities.ToList();
             int numberOfRecords = entities.Count;
@@ -123,16 +125,17 @@ namespace CsvWinFormsApp
 
             foreach (Control control in groupBox.Controls)
             {
-                if (control.GetType() != typeof(RadioButton))
-                    control.BackColor = enable ? Color.Wheat : Color.LightGray;
+                if (control.GetType() == typeof(TextBox))
+                    control.BackColor = enable ? Color.FloralWhite : Color.LightGray;
+                else if (control.GetType() == typeof(Button))
+                    control.BackColor = enable ? ColorTranslator.FromHtml("#e1d7b3") : Color.LightGray;
             }
 
             if (enable)
             {
-                buttonDeleteDbData.BackColor = Color.LightPink;
-                buttonDeleteDbData.ForeColor = Color.Red;
+                buttonDeleteDbData.BackColor = ColorTranslator.FromHtml("#e1d2dc");
+                buttonDeleteDbData.ForeColor = ColorTranslator.FromHtml("#9a4f4f");
             }
-
         }
 
         private async void buttonImport_Click(object sender, EventArgs e)
@@ -159,7 +162,7 @@ namespace CsvWinFormsApp
             {
                 // Get the selected file's path
                 string selectedFilePath = openFileDialog.FileName;
-                int BatchSize = 1;
+                int BatchSize = 1000;
                 int addedRecords = 0;
                 var records = new List<Record>();
                 LoadingMessageForm loadingForm = new LoadingMessageForm("Trying to connect ot specified Database...", "Import data to DB");
@@ -193,7 +196,7 @@ namespace CsvWinFormsApp
                                 loadingForm.Invoke(new Action(() => loadingForm.UpdateMessage($"Inserted {addedRecords} records...")));
                                 await InsertRecordsAsync(records);
                                 addedRecords += BatchSize;
-                                labelDbInfo.Text = $"Inserted {addedRecords} records...";
+                                // Simulate some work
                                 await Task.Delay(1000); // Wait for 1 second before processing the next batch
                                 records.Clear();
                             }
@@ -209,7 +212,7 @@ namespace CsvWinFormsApp
                         loadingForm.Invoke(new Action(() => loadingForm.Close()));
                         // Show success message
                         MessageBox.Show($"Inserted {addedRecords} records!");
-                        CheckNumOfDBRecords();
+                        UpdateFormComponents();
                     }
                 }
                 catch (Exception ex)
@@ -246,10 +249,8 @@ namespace CsvWinFormsApp
 
         private async void buttonExport_Click(object sender, EventArgs e)
         {
-            // TODO async
             List<Record> records = GetFilteredRecords();
 
-            //TODO filter records
 
             // Show SaveFileDialog to let the user choose the file path and name
             SaveFileDialog saveFileDialog = radioButtonCsv.Checked
@@ -348,7 +349,6 @@ namespace CsvWinFormsApp
                     }
                 }
             }
-
         }
 
 
@@ -380,6 +380,7 @@ namespace CsvWinFormsApp
             List<Record> records = _context.GetFilteredEntities(criteria).ToList();
             return records;
         }
+
         private void buttonClearFilters_Click(object sender, EventArgs e)
         {
             radioButtonCsv.Checked = true;
@@ -396,8 +397,8 @@ namespace CsvWinFormsApp
             // Store the last key pressed
             _lastKeyPressed = e.KeyChar;
 
-            // Allow only digits and '-' characters
-            if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back && e.KeyChar != '-')
+            // Allow only digits, backspace and '-' characters
+            if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back /*&& e.KeyChar != '-'*/)
             {
                 e.Handled = true; // Ignore the key press
             }
@@ -409,8 +410,6 @@ namespace CsvWinFormsApp
             string input = textBoxDate.Text;
 
             if (input.Length == 0 || _lastKeyPressed == (char)Keys.Back) return;
-
-            // Remove non-digit and non-hyphen characters
 
             // Format the text to dd-MM-yyyy
             if (input.Length == 2)
@@ -445,7 +444,6 @@ namespace CsvWinFormsApp
                 else
                 {
                     MessageBox.Show("Invalid format. Please use dd-MM-yyyy format.");
-                    // input = textBoxDate.Text.Substring(0, input.Length - 1);
                 }
             }
 
@@ -470,8 +468,7 @@ namespace CsvWinFormsApp
                 var sql = $"DELETE FROM {_db}";
                 await _context.Database.ExecuteSqlRawAsync(sql);
 
-                CheckNumOfDBRecords();
-
+                UpdateFormComponents();
             }
         }
     }

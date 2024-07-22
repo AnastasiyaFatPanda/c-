@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CsvWinFormsApp
+namespace CsvWinFormsApp.Models
 {
     public class FilterCriteria
     {

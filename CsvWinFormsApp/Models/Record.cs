@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CsvWinFormsApp
+namespace CsvWinFormsApp.Models
 {
     [Table("dummy", Schema = "education")]
     public class Record
