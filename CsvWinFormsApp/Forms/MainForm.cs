@@ -22,6 +22,8 @@ using Microsoft.EntityFrameworkCore;
 using CsvWinFormsApp.Models;
 using CsvWinFormsApp.Contexts;
 using CsvWinFormsApp.Utilities;
+using System.Xml.Linq;
+using CsvWinFormsApp.Enums;
 
 namespace CsvWinFormsApp
 {
@@ -29,7 +31,6 @@ namespace CsvWinFormsApp
     {
         private readonly MyContext _context;
         private char _lastKeyPressed;
-        private string _db;
 
         public MainForm()
         {
@@ -49,7 +50,6 @@ namespace CsvWinFormsApp
             {
                 // Get the connection string from appsettings.json
                 string connectionString = ConfigurationHelper.GetConnectionString();
-                _db = ConfigurationHelper.GetDatabaseName();
 
                 // Initialize DbContext
                 _context = new MyContext(connectionString);
@@ -76,18 +76,6 @@ namespace CsvWinFormsApp
                     Environment.Exit(1);
                 }
             }
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            //List<MyEntity> entities = _context.MyEntities.Where(e => e.date > new DateTime(2000, 01, 01)).ToList();
-            IQueryable<Record> entities = from entity in _context.MyEntities
-                                          where entity.Date > new DateTime(2000, 01, 01)
-                                          select entity;
-            if (entities.ToList().Count() != 0)
-                label1.Text = string.Join("\n", entities.First()) + $"\n\n count: {entities.ToList().Count.ToString()} {_db}";
-            else
-                label1.Text = "No data";
         }
 
 
@@ -140,221 +128,38 @@ namespace CsvWinFormsApp
 
         private async void buttonImport_Click(object sender, EventArgs e)
         {
-            // Create and configure the OpenFileDialog
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            await Task.Run(() =>
             {
-                Title = "Browse Files",
+                ImportHelper.ImportCsvData(this, _context, () => UpdateFormComponents());
+            });
 
-                CheckFileExists = true,
-                CheckPathExists = true,
-
-                DefaultExt = "csv",
-                Filter = "Text files (*.csv)|*.csv|All files (*.*)|*.*",
-                FilterIndex = 1,
-                RestoreDirectory = true,
-
-                ReadOnlyChecked = true,
-                ShowReadOnly = true
-            };
-
-            // Show the dialog and handle the file selection
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                // Get the selected file's path
-                string selectedFilePath = openFileDialog.FileName;
-                int BatchSize = 1000;
-                int addedRecords = 0;
-                var records = new List<Record>();
-                LoadingMessageForm loadingForm = new LoadingMessageForm("Trying to connect ot specified Database...", "Import data to DB");
-                loadingForm.Show();
-
-                try
-                {
-                    using (var reader = new StreamReader(selectedFilePath))
-                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                    {
-                        // Read the header before reading any fields
-                        await csv.ReadAsync();
-                        csv.ReadHeader();
-
-                        while (await csv.ReadAsync())
-                        {
-                            var record = new Record
-                            {
-                                Id = Guid.NewGuid(),
-                                Name = csv.GetField<string>("name"),
-                                Surname = csv.GetField<string>("surname"),
-                                Date = csv.GetField<DateTime>("date"),
-                                City = csv.GetField<string>("city"),
-                                Country = csv.GetField<string>("country")
-                            };
-
-                            records.Add(record);
-
-                            if (records.Count == BatchSize)
-                            {
-                                loadingForm.Invoke(new Action(() => loadingForm.UpdateMessage($"Inserted {addedRecords} records...")));
-                                await InsertRecordsAsync(records);
-                                addedRecords += BatchSize;
-                                // Simulate some work
-                                await Task.Delay(1000); // Wait for 1 second before processing the next batch
-                                records.Clear();
-                            }
-                        }
-
-                        if (records.Count() > 0)
-                        {
-                            addedRecords += records.Count;
-                            await InsertRecordsAsync(records);
-                            // Close the loading form
-                        }
-
-                        loadingForm.Invoke(new Action(() => loadingForm.Close()));
-                        // Show success message
-                        MessageBox.Show($"Inserted {addedRecords} records!");
-                        UpdateFormComponents();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    loadingForm.Invoke(new Action(() => loadingForm.Close()));
-                    MessageBox.Show(
-                      $"Cannot import file data from the file to database. \n\n Error: \n {ex.Message}",
-                      "Error",
-                      MessageBoxButtons.OK,
-                      MessageBoxIcon.Error
-                    );
-                }
-            }
         }
 
-        private async Task InsertRecordsAsync(List<Record> records)
-        {
-            try
-            {
-                await _context.MyEntities.AddRangeAsync(records);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                  $"Cannot save data. \n\n Error: \n {ex.Message}",
-                  "Error",
-                  MessageBoxButtons.OK,
-                  MessageBoxIcon.Error
-                );
-
-            }
-        }
-
-        private async void buttonExport_Click(object sender, EventArgs e)
+        private void buttonExport_Click(object sender, EventArgs e)
         {
             List<Record> records = GetFilteredRecords();
 
-
+            ExportEnum exportFormat = radioButtonCsv.Checked
+                ? ExportEnum.CSV
+                : radioButtonExcel.Checked
+                    ? ExportEnum.EXCEL
+                    : ExportEnum.XML;
             // Show SaveFileDialog to let the user choose the file path and name
-            SaveFileDialog saveFileDialog = radioButtonCsv.Checked
-                ? new SaveFileDialog
-                {
-                    Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
-                    Title = "Save an Export CSV File",
-                    DefaultExt = "csv",
-                    FileName = "records_export.csv"
-                }
-                : new SaveFileDialog
-                {
-                    Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*",
-                    Title = "Save an Export File",
-                    DefaultExt = "xlsx",
-                    FileName = "records_export.xlsx"
-                };
+            SaveFileDialog saveFileDialog = ExportHelper.CreateSaveFileDialog(exportFormat);
 
-            var showsaveDialog = saveFileDialog.ShowDialog();
+            DialogResult showsaveDialog = saveFileDialog.ShowDialog();
+            string filePath = saveFileDialog.FileName;
 
             // Show the dialog and handle the file selection
             // CSV format
-            if (showsaveDialog == DialogResult.OK && radioButtonCsv.Checked)
+            if (showsaveDialog == DialogResult.OK)
             {
-                var filePath = saveFileDialog.FileName;
-
-                using (var writer = new StreamWriter(filePath))
-                using (var csv = new CsvWriter(writer, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
-                {
-                    await csv.WriteRecordsAsync(records);
-                }
-
-                // Show MessageBox to the user
-                var result = MessageBox.Show(
-                    $"Data exported successfully to {filePath}. Do you want to open the created file?",
-                    "File Created",
-                    MessageBoxButtons.OKCancel,
-                    MessageBoxIcon.Information
-                );
-
-                // Check user's response
-                if (result == DialogResult.OK)
-                {
-                    // Open the file in the default application
-                    Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
-                }
-            }
-            // Excel format
-            else if (showsaveDialog == DialogResult.OK)
-            {
-                {
-                    var filePath = saveFileDialog.FileName;
-
-                    // Create a new workbook and worksheet
-                    using (var workbook = new XLWorkbook())
-                    {
-                        var worksheet = workbook.Worksheets.Add("Records");
-
-                        // Add header row
-                        worksheet.Cell(1, 1).Value = "Id";
-                        worksheet.Cell(1, 2).Value = "Name";
-                        worksheet.Cell(1, 3).Value = "Surname";
-                        worksheet.Cell(1, 4).Value = "Date";
-                        worksheet.Cell(1, 5).Value = "City";
-                        worksheet.Cell(1, 6).Value = "Country";
-
-                        // Add data rows
-                        for (int i = 0; i < records.Count; i++)
-                        {
-                            var record = records[i];
-                            worksheet.Cell(i + 2, 1).Value = record.Id.ToString();
-                            worksheet.Cell(i + 2, 2).Value = record.Name;
-                            worksheet.Cell(i + 2, 3).Value = record.Surname;
-                            worksheet.Cell(i + 2, 4).Value = record.Date;
-                            worksheet.Cell(i + 2, 5).Value = record.City;
-                            worksheet.Cell(i + 2, 6).Value = record.Country;
-                        }
-
-                        // Save the workbook
-                        workbook.SaveAs(filePath);
-                    }
-
-                    // Show MessageBox to the user
-                    var result = MessageBox.Show(
-                        $"Data exported successfully to {filePath}. Do you want to open the created file?",
-                        "File Created",
-                        MessageBoxButtons.OKCancel,
-                        MessageBoxIcon.Information
-                    );
-
-                    // Check user's response
-                    if (result == DialogResult.OK)
-                    {
-                        // Open the file in the default application
-                        Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
-                    }
-                }
+                ExportHelper.GenerateFile(exportFormat, filePath, records);
             }
         }
 
-
         private List<Record> GetFilteredRecords()
         {
-
             string dateString = textBoxDate.Text;
             DateTime filterDate;
             try
@@ -397,8 +202,8 @@ namespace CsvWinFormsApp
             // Store the last key pressed
             _lastKeyPressed = e.KeyChar;
 
-            // Allow only digits, backspace and '-' characters
-            if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back /*&& e.KeyChar != '-'*/)
+            // Allow only digits, backspace characters
+            if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back)
             {
                 e.Handled = true; // Ignore the key press
             }
@@ -414,11 +219,11 @@ namespace CsvWinFormsApp
             // Format the text to dd-MM-yyyy
             if (input.Length == 2)
             {
-                input = input.Insert(2, "-");
+                input = input.Insert(2, "/");
             }
             if (input.Length == 5)
             {
-                input = input.Insert(5, "-");
+                input = input.Insert(5, "/");
             }
 
             // Ensure the text doesn't exceed the desired length
@@ -427,24 +232,9 @@ namespace CsvWinFormsApp
                 input = input.Substring(0, 10);
             }
 
-            if (input.Length == 10)
+            if (input.Length == 10 && !Regex.IsMatch(input, datePattern))
             {
-                if (Regex.IsMatch(input, datePattern))
-                {
-                    DateTime parsedDate;
-                    if (DateTime.TryParseExact(input, "dd-MM-yyyy", null, System.Globalization.DateTimeStyles.None, out parsedDate))
-                    {
-                        MessageBox.Show("Valid date: " + parsedDate.ToString("dd-MM-yyyy"));
-                    }
-                    else
-                    {
-                        MessageBox.Show("Invalid date. Please enter a valid date in dd-MM-yyyy format.");
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Invalid format. Please use dd-MM-yyyy format.");
-                }
+                MessageBox.Show("Invalid format. Please use dd/MM/yyyy format.");
             }
 
             textBoxDate.Text = input;
@@ -453,24 +243,17 @@ namespace CsvWinFormsApp
 
         private async void buttonDeleteDbData_Click(object sender, EventArgs e)
         {
-            // Show MessageBox to the user
-            var result = MessageBox.Show(
-                $"Are you sure you want to delete all records in DB?",
-                "Delete all DB records",
-                MessageBoxButtons.OKCancel,
-                MessageBoxIcon.Information
-            );
+            DatabaseHelper.DeleteAllDatabaseData(_context);
+            UpdateFormComponents();
+        }
 
-            // Check user's response
-            if (result == DialogResult.OK)
+        private void textBoxName_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Allow only digits, backspace characters
+            if (!char.IsLetter(e.KeyChar) && e.KeyChar != (char)Keys.Back && e.KeyChar != (char)Keys.Space)
             {
-                // Delete all data from MyEntities table
-                var sql = $"DELETE FROM {_db}";
-                await _context.Database.ExecuteSqlRawAsync(sql);
-
-                UpdateFormComponents();
+                e.Handled = true; // Ignore the key press
             }
         }
     }
-
 }
