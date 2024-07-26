@@ -12,7 +12,7 @@ namespace CsvWinFormsApp.Utilities
     {
         public static async void DeleteAllDatabaseData(MyContext _context, Action callback)
         {
-           string _db = ConfigurationHelper.GetDatabaseName();
+           string db = ConfigurationHelper.GetFullDatabaseName();
             // Show MessageBox to the user
             var result = MessageBox.Show(
                 $"Are you sure you want to delete all records in DB?",
@@ -25,7 +25,7 @@ namespace CsvWinFormsApp.Utilities
             if (result == DialogResult.OK)
             {
                 // Delete all data from MyEntities table
-                var sql = $"DELETE FROM {_db}";
+                var sql = $"DELETE FROM {db}";
                 await _context.Database.ExecuteSqlRawAsync(sql);
                 callback();
             }

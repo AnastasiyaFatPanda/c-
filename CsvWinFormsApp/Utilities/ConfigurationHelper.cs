@@ -14,6 +14,7 @@ namespace CsvWinFormsApp.Utilities
     public static class ConfigurationHelper
     {
         public static IConfigurationRoot Configuration { get; private set; }
+        private static IConfigurationSection _configurationDatabaseInfo { get; set; }
 
         static ConfigurationHelper()
         {
@@ -21,6 +22,7 @@ namespace CsvWinFormsApp.Utilities
                 .SetBasePath("C:\\Users\\jagfd\\Documents\\GitHub\\CsvWinFormsApp\\CsvWinFormsApp")
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
+            _configurationDatabaseInfo = Configuration.GetSection("DatabaseInfo");
         }
 
         public static string GetConnectionString()
@@ -28,22 +30,33 @@ namespace CsvWinFormsApp.Utilities
             return Configuration.GetConnectionString("DefaultConnection");
         }
 
-        public static string GetDatabaseName()
+        public static string GetTableName()
         {
-            IConfigurationSection configurationDatabaseInfo = Configuration.GetSection("DatabaseInfo");
-            string catalogName = configurationDatabaseInfo["Catalog"];
-            string schemaName = configurationDatabaseInfo["Schema"];
-            string databaseName = configurationDatabaseInfo["DB"];
+            return _configurationDatabaseInfo["DB"];
+        }
+
+        public static string GetSchemaName()
+        {
+
+            return _configurationDatabaseInfo["Schema"];
+        }
+
+        public static string GetFullDatabaseName()
+        {
+            string catalogName = _configurationDatabaseInfo["Catalog"];
+            string schemaName = _configurationDatabaseInfo["Schema"];
+            string databaseName = _configurationDatabaseInfo["DB"];
 
             if (catalogName == null || schemaName == null || databaseName == null)
             {
                 var result = MessageBox.Show(
-                 "Cannot run the app. Please, check your appsettings.json file",
-                 "Error",
-                 MessageBoxButtons.OK,
-                 MessageBoxIcon.Error
-               );
+                   "Cannot run the app. Please, check your appsettings.json file",
+                   "Error",
+                   MessageBoxButtons.OK,
+                   MessageBoxIcon.Error
+                 );
 
+                // Close the app after the error message
                 if (result != DialogResult.None)
                 {
                     // Exit the application with an error code
@@ -51,7 +64,6 @@ namespace CsvWinFormsApp.Utilities
                 }
             }
 
-            string db = $"{catalogName}.{schemaName}.{databaseName}";
             return $"{catalogName}.{schemaName}.{databaseName}";
         }
     }

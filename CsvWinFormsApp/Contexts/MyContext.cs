@@ -1,4 +1,5 @@
 ﻿using CsvWinFormsApp.Models;
+using CsvWinFormsApp.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace CsvWinFormsApp.Contexts
     {
         public DbSet<Record> MyEntities { get; set; }
 
+
         private readonly string _connectionString;
 
         public MyContext(string connectionString)
@@ -20,9 +22,15 @@ namespace CsvWinFormsApp.Contexts
             _connectionString = connectionString;
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            string tableName = ConfigurationHelper.GetTableName();
+            string schemaName = ConfigurationHelper.GetSchemaName();
+            modelBuilder.Entity<Record>()
+                .ToTable(tableName, schemaName);
+        }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // optionsBuilder.UseSqlServer(_connectionString);
             optionsBuilder.UseSqlServer(_connectionString, sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure(

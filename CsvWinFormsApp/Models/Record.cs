@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 
 namespace CsvWinFormsApp.Models
 {
-    [Table("dummy", Schema = "education")]
+    // if we know the name of table and schema:
+    //   [Table("dummy", Schema = "education")]
+    // otherwise, set it up in MyContext
     public class Record
     {
         public Guid Id { get; set; }
