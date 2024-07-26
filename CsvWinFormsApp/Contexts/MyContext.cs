@@ -54,12 +54,12 @@ namespace CsvWinFormsApp.Contexts
 
             if (!string.IsNullOrEmpty(criteria.City))
             {
-                query = query.Where(e => e.City == criteria.City);
+                query = query.Where(e => e.City.Contains(criteria.City));
             }
 
             if (!string.IsNullOrEmpty(criteria.Country))
             {
-                query = query.Where(e => e.Country == criteria.Country);
+                query = query.Where(e => e.Country.Contains(criteria.Country));
             }
 
             return query;

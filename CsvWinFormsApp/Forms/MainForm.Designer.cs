@@ -122,7 +122,7 @@
             textBoxDate.BackColor = Color.FloralWhite;
             textBoxDate.Location = new Point(20, 284);
             textBoxDate.Name = "textBoxDate";
-            textBoxDate.PlaceholderText = "Date (dd/MM/yyyy format)";
+            textBoxDate.PlaceholderText = "Date (yyyy-MM-dd format)";
             textBoxDate.Size = new Size(316, 27);
             textBoxDate.TabIndex = 7;
             textBoxDate.TextChanged += textBoxDate_TextChanged;
@@ -197,7 +197,7 @@
             labelInfo2.Name = "labelInfo2";
             labelInfo2.Size = new Size(316, 48);
             labelInfo2.TabIndex = 15;
-            labelInfo2.Text = "You can enter only digits. The filter must be in dd/MM/yyyy format";
+            labelInfo2.Text = "You can enter only digits. You will get all records after specified date. The filter must be in yyyy-MM-dd format";
             // 
             // labelInfo1
             // 

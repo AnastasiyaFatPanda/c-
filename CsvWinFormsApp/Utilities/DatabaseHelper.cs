@@ -10,7 +10,7 @@ namespace CsvWinFormsApp.Utilities
 {
     internal static class DatabaseHelper
     {
-        public static async void DeleteAllDatabaseData(MyContext _context)
+        public static async void DeleteAllDatabaseData(MyContext _context, Action callback)
         {
            string _db = ConfigurationHelper.GetDatabaseName();
             // Show MessageBox to the user
@@ -27,7 +27,7 @@ namespace CsvWinFormsApp.Utilities
                 // Delete all data from MyEntities table
                 var sql = $"DELETE FROM {_db}";
                 await _context.Database.ExecuteSqlRawAsync(sql);
-
+                callback();
             }
         }
     }

@@ -31,6 +31,7 @@ namespace CsvWinFormsApp
     {
         private readonly MyContext _context;
         private char _lastKeyPressed;
+        private string _datePattern = @"^(19|20)[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$";
 
         public MainForm()
         {
@@ -43,8 +44,7 @@ namespace CsvWinFormsApp
                 Application.Run(loadingForm);
             });
 
-            // Simulate some work
-            Task.Delay(1000).Wait(); // Simulate 1 second delay for loading
+            // Task.Delay(1000).Wait(); // Simulate 1 second delay for loading
 
             try
             {
@@ -56,12 +56,13 @@ namespace CsvWinFormsApp
                 UpdateFormComponents();
 
                 // Close the loading form
-                loadingForm.Invoke(new Action(() => loadingForm.Close()));
+                loadingForm.Invoke(() => loadingForm.Close());
+                this.Focus();
             }
             catch (Exception ex)
             {
                 // Close the loading form
-                loadingForm.Invoke(new Action(() => loadingForm.Close()));
+                loadingForm.Invoke(() => loadingForm.Close());
 
                 var result = MessageBox.Show(
                   $"Cannot run the app. Please, check your VPN connection. \n\n Error: \n {ex.Message}",
@@ -132,29 +133,43 @@ namespace CsvWinFormsApp
             {
                 ImportHelper.ImportCsvData(this, _context, () => UpdateFormComponents());
             });
-
         }
 
         private void buttonExport_Click(object sender, EventArgs e)
         {
-            List<Record> records = GetFilteredRecords();
-
-            ExportEnum exportFormat = radioButtonCsv.Checked
-                ? ExportEnum.CSV
-                : radioButtonExcel.Checked
-                    ? ExportEnum.EXCEL
-                    : ExportEnum.XML;
-            // Show SaveFileDialog to let the user choose the file path and name
-            SaveFileDialog saveFileDialog = ExportHelper.CreateSaveFileDialog(exportFormat);
-
-            DialogResult showsaveDialog = saveFileDialog.ShowDialog();
-            string filePath = saveFileDialog.FileName;
-
-            // Show the dialog and handle the file selection
-            // CSV format
-            if (showsaveDialog == DialogResult.OK)
+            try
             {
-                ExportHelper.GenerateFile(exportFormat, filePath, records);
+                List<Record> records = GetFilteredRecords();
+
+                if (records.Count == 0)
+                {
+                    MessageBox.Show("There is no data to export.");
+                    return;
+                }
+
+                ExportEnum exportFormat = radioButtonCsv.Checked
+                    ? ExportEnum.CSV
+                    : radioButtonExcel.Checked
+                        ? ExportEnum.EXCEL
+                        : ExportEnum.XML;
+
+                // Show SaveFileDialog to let the user choose the file path and name
+                SaveFileDialog saveFileDialog = ExportHelper.CreateSaveFileDialog(exportFormat);
+
+                DialogResult showsaveDialog = saveFileDialog.ShowDialog();
+                string filePath = saveFileDialog.FileName;
+
+                // Show the dialog and handle the file selection
+                // CSV format
+                if (showsaveDialog == DialogResult.OK)
+                {
+                    ExportHelper.GenerateFile(exportFormat, filePath, records);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Incorrect filter request. \n\n Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
             }
         }
 
@@ -164,11 +179,14 @@ namespace CsvWinFormsApp
             DateTime filterDate;
             try
             {
+                if (!Regex.IsMatch(dateString, _datePattern) && !string.IsNullOrEmpty(dateString))
+                {
+                    throw new Exception("Incorrect Date value format");
+                }
                 DateTime.TryParse(dateString, out filterDate);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Incorrect Date value");
                 throw ex;
             }
 
@@ -211,19 +229,18 @@ namespace CsvWinFormsApp
 
         private void textBoxDate_TextChanged(object sender, EventArgs e)
         {
-            string datePattern = @"^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-(19|20)\d\d$";
             string input = textBoxDate.Text;
 
             if (input.Length == 0 || _lastKeyPressed == (char)Keys.Back) return;
 
-            // Format the text to dd-MM-yyyy
-            if (input.Length == 2)
+            // Format the text to yyyy-MM-dd
+            if (input.Length == 4)
             {
-                input = input.Insert(2, "/");
+                input = input.Insert(4, "-");
             }
-            if (input.Length == 5)
+            if (input.Length == 7)
             {
-                input = input.Insert(5, "/");
+                input = input.Insert(7, "-");
             }
 
             // Ensure the text doesn't exceed the desired length
@@ -232,9 +249,9 @@ namespace CsvWinFormsApp
                 input = input.Substring(0, 10);
             }
 
-            if (input.Length == 10 && !Regex.IsMatch(input, datePattern))
+            if (input.Length == 10 && !Regex.IsMatch(input, _datePattern))
             {
-                MessageBox.Show("Invalid format. Please use dd/MM/yyyy format.");
+                MessageBox.Show("Invalid format. Please use yyyy-MM-dd format.");
             }
 
             textBoxDate.Text = input;
@@ -243,8 +260,7 @@ namespace CsvWinFormsApp
 
         private async void buttonDeleteDbData_Click(object sender, EventArgs e)
         {
-            DatabaseHelper.DeleteAllDatabaseData(_context);
-            UpdateFormComponents();
+            DatabaseHelper.DeleteAllDatabaseData(_context, () => UpdateFormComponents());
         }
 
         private void textBoxName_KeyPress(object sender, KeyPressEventArgs e)
