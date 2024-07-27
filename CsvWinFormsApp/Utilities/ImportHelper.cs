@@ -43,7 +43,7 @@ namespace CsvWinFormsApp.Utilities
                         int BatchSize = 1000;
                         int addedRecords = 0;
                         var records = new List<Record>();
-                        LoadingMessageForm loadingForm = new LoadingMessageForm("Trying to connect ot specified Database...", "Import data to DB");
+                        LoadingMessageForm loadingForm = new LoadingMessageForm("Trying to connect to specified Database...", "Import data to DB");
                         loadingForm.Show();
 
                         try

@@ -29,66 +29,22 @@ namespace CsvWinFormsApp
 {
     public partial class MainForm : Form
     {
-        private readonly MyContext _context;
+        private MyContext _context;
         private char _lastKeyPressed;
         private string _datePattern = @"^(19|20)[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$";
 
-        public MainForm()
+        public MainForm(MyContext context)
         {
             InitializeComponent();
-
-            // Display the loading form
-            LoadingMessageForm loadingForm = new LoadingMessageForm("Trying to connect ot specified Database...", "Connecting to DB");
-            Task.Run(() =>
-            {
-                Application.Run(loadingForm);
-            });
-
-            // Task.Delay(1000).Wait(); // Simulate 1 second delay for loading
-
-            try
-            {
-                // Get the connection string from appsettings.json
-                string connectionString = ConfigurationHelper.GetConnectionString();
-
-                // Initialize DbContext
-                _context = new MyContext(connectionString);
-                UpdateFormComponents();
-
-                // Close the loading form
-                loadingForm.Invoke(() => loadingForm.Close());
-                this.Focus();
-            }
-            catch (Exception ex)
-            {
-                // Close the loading form
-                loadingForm.Invoke(() => loadingForm.Close());
-
-                var result = MessageBox.Show(
-                  $"Cannot run the app. Please, check your VPN connection. \n\n Error: \n {ex.Message}",
-                  "Error",
-                  MessageBoxButtons.OK,
-                  MessageBoxIcon.Error
-                );
-
-                if (result != DialogResult.None)
-                {
-                    // Exit the application with an error code
-                    Environment.Exit(1);
-                }
-            }
+            this._context = context;
+            UpdateFormComponents();
         }
-
 
         public int UpdateFormComponents()
         {
             List<Record> entities = _context.MyEntities.ToList();
             int numberOfRecords = entities.Count;
 
-            labelDbInfo.Text = numberOfRecords == 1
-                ? "Database contains one record"
-                :
-                $"Database contains {numberOfRecords} records";
             switch (numberOfRecords)
             {
                 case 0:
@@ -187,9 +143,11 @@ namespace CsvWinFormsApp
             }
             catch (Exception ex)
             {
+                textBoxDate.BackColor = ColorTranslator.FromHtml("#ffbc98");
                 throw ex;
             }
 
+            textBoxDate.BackColor = Color.FloralWhite;
             var criteria = new FilterCriteria
             {
                 Name = textBoxName.Text,
@@ -271,5 +229,6 @@ namespace CsvWinFormsApp
                 e.Handled = true; // Ignore the key press
             }
         }
+
     }
 }
