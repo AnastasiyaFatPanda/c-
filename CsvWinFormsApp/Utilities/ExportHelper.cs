@@ -2,14 +2,8 @@
 using CsvHelper;
 using CsvWinFormsApp.Enums;
 using CsvWinFormsApp.Models;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Xml.Linq;
 
 namespace CsvWinFormsApp.Utilities
@@ -48,18 +42,81 @@ namespace CsvWinFormsApp.Utilities
         }
         public static void GenerateFile(ExportEnum exportFormat, string filePath, List<Record> records)
         {
-            if (exportFormat == ExportEnum.CSV)
+            try
             {
-                using (var writer = new StreamWriter(filePath))
-                using (var csv = new CsvWriter(writer, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
+                switch (exportFormat)
                 {
-                    csv.WriteRecords(records);
+                    case ExportEnum.CSV:
+                        {
+                            GenerateCSV(records, filePath);
+                            break;
+                        }
+                    case ExportEnum.EXCEL:
+                        {
+                            GenerateExcel(records, filePath);
+                            break;
+                        }
+                    case ExportEnum.XML:
+                        {
+                            GenerateXML(records, filePath);
+                            break;
+                        }
+                    default: break;
                 }
             }
-            // Create XML structure
-            else if (exportFormat == ExportEnum.XML)
+            catch
             {
-                XElement root = new XElement("TestProgram",
+                MessagesHelper.ShowErrorMessage("Unexpected error occured during file saving!");
+            }
+            finally
+            {
+                var result = MessagesHelper.ShowInfoMessage($"Data exported successfully to {filePath}. Do you want to open the created file?");
+
+                // Check user's response
+                if (result == DialogResult.OK)
+                {
+                    // Open the file in the default application
+                    Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+                }
+            }
+        }
+
+        private static void GenerateExcel(List<Record> records, string filePath)
+        {
+            // Create a new workbook and worksheet
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Records");
+
+                // Add header row
+                worksheet.Cell(1, 1).Value = "Id";
+                worksheet.Cell(1, 2).Value = "Name";
+                worksheet.Cell(1, 3).Value = "Surname";
+                worksheet.Cell(1, 4).Value = "Date";
+                worksheet.Cell(1, 5).Value = "City";
+                worksheet.Cell(1, 6).Value = "Country";
+
+                // Add data rows
+                for (int i = 0; i < records.Count; i++)
+                {
+                    var record = records[i];
+                    worksheet.Cell(i + 2, 1).Value = record.Id.ToString();
+                    worksheet.Cell(i + 2, 2).Value = record.Name;
+                    worksheet.Cell(i + 2, 3).Value = record.Surname;
+                    worksheet.Cell(i + 2, 4).Value = record.Date;
+                    worksheet.Cell(i + 2, 5).Value = record.City;
+                    worksheet.Cell(i + 2, 6).Value = record.Country;
+                }
+
+                // Save the workbook
+                workbook.SaveAs(filePath);
+            }
+
+        }
+
+        private static void GenerateXML(List<Record> records, string filePath)
+        {
+            XElement root = new XElement("TestProgram",
                     records.Select(d =>
                         new XElement("Record", new XAttribute("id", d.Id),
                             new XElement("Date", d.Date),
@@ -71,55 +128,17 @@ namespace CsvWinFormsApp.Utilities
                     )
                 );
 
-                root.Save(filePath);
-            }
-            // Excel format
-            else if (exportFormat == ExportEnum.EXCEL)
+            root.Save(filePath);
+        }
+
+        private static void GenerateCSV(List<Record> records, string filePath)
+        {
+            using (var writer = new StreamWriter(filePath))
+            using (var csv = new CsvWriter(writer, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)))
             {
-                // Create a new workbook and worksheet
-                using (var workbook = new XLWorkbook())
-                {
-                    var worksheet = workbook.Worksheets.Add("Records");
-
-                    // Add header row
-                    worksheet.Cell(1, 1).Value = "Id";
-                    worksheet.Cell(1, 2).Value = "Name";
-                    worksheet.Cell(1, 3).Value = "Surname";
-                    worksheet.Cell(1, 4).Value = "Date";
-                    worksheet.Cell(1, 5).Value = "City";
-                    worksheet.Cell(1, 6).Value = "Country";
-
-                    // Add data rows
-                    for (int i = 0; i < records.Count; i++)
-                    {
-                        var record = records[i];
-                        worksheet.Cell(i + 2, 1).Value = record.Id.ToString();
-                        worksheet.Cell(i + 2, 2).Value = record.Name;
-                        worksheet.Cell(i + 2, 3).Value = record.Surname;
-                        worksheet.Cell(i + 2, 4).Value = record.Date;
-                        worksheet.Cell(i + 2, 5).Value = record.City;
-                        worksheet.Cell(i + 2, 6).Value = record.Country;
-                    }
-
-                    // Save the workbook
-                    workbook.SaveAs(filePath);
-                }
-            }
-
-            // Show MessageBox to the user
-            var result = MessageBox.Show(
-                $"Data exported successfully to {filePath}. Do you want to open the created file?",
-                "File Created",
-                MessageBoxButtons.OKCancel,
-                MessageBoxIcon.Information
-            );
-
-            // Check user's response
-            if (result == DialogResult.OK)
-            {
-                // Open the file in the default application
-                Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+                csv.WriteRecords(records);
             }
         }
+
     }
 }

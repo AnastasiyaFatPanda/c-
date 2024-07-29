@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using System.IO;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System.Configuration;
-
+﻿using Microsoft.Extensions.Configuration;
 
 namespace CsvWinFormsApp.Utilities
 {
@@ -49,22 +40,22 @@ namespace CsvWinFormsApp.Utilities
 
             if (catalogName == null || schemaName == null || databaseName == null)
             {
-                var result = MessageBox.Show(
-                   "Cannot run the app. Please, check your appsettings.json file",
-                   "Error",
-                   MessageBoxButtons.OK,
-                   MessageBoxIcon.Error
-                 );
-
-                // Close the app after the error message
-                if (result != DialogResult.None)
-                {
-                    // Exit the application with an error code
-                    Environment.Exit(1);
-                }
+                HandleErrorsAndExit();
             }
 
             return $"{catalogName}.{schemaName}.{databaseName}";
+        }
+
+        public static void HandleErrorsAndExit()
+        {
+            var result = MessagesHelper.ShowErrorMessage("Cannot run the app. Please, check your appsettings.json file");
+
+            // Close the app after the error message
+            if (result != DialogResult.None)
+            {
+                // Exit the application with an error code
+                Environment.Exit(1);
+            }
         }
     }
 

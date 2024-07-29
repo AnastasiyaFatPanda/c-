@@ -11,14 +11,14 @@
         ///  Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+        //protected override void Dispose(bool disposing)
+        //{
+        //    if (disposing && (components != null))
+        //    {
+        //        components.Dispose();
+        //    }
+        //    base.Dispose(disposing);
+        //}
 
         #region Windows Form Designer generated code
 
@@ -118,6 +118,7 @@
             textBoxSurname.PlaceholderText = "Surname";
             textBoxSurname.Size = new Size(316, 27);
             textBoxSurname.TabIndex = 6;
+            textBoxSurname.KeyPress += textBoxSurname_KeyPress;
             // 
             // textBoxDate
             // 
@@ -140,6 +141,7 @@
             textBoxCity.PlaceholderText = "City";
             textBoxCity.Size = new Size(316, 27);
             textBoxCity.TabIndex = 8;
+            textBoxCity.KeyPress += textBoxCity_KeyPress;
             // 
             // textBoxCountry
             // 
@@ -150,6 +152,7 @@
             textBoxCountry.PlaceholderText = "Country";
             textBoxCountry.Size = new Size(316, 27);
             textBoxCountry.TabIndex = 9;
+            textBoxCountry.KeyPress += textBoxCountry_KeyPress;
             // 
             // labelDbInfo
             // 

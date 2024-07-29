@@ -1,12 +1,6 @@
 ﻿using CsvWinFormsApp.Models;
 using CsvWinFormsApp.Utilities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 
 namespace CsvWinFormsApp.Contexts
 {
@@ -35,7 +29,7 @@ namespace CsvWinFormsApp.Contexts
             {
                 sqlOptions.EnableRetryOnFailure(
                     maxRetryCount: 3, // The maximum number of retry attempts
-                    maxRetryDelay: TimeSpan.FromSeconds(3), // The maximum delay between retries
+                    maxRetryDelay: TimeSpan.FromSeconds(1), // The maximum delay between retries
                     errorNumbersToAdd: null // Additional error numbers to consider transient
                 );
             });

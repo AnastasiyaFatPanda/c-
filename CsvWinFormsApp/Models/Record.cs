@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CsvWinFormsApp.Models
+﻿namespace CsvWinFormsApp.Models
 {
     // if we know the name of table and schema:
-    //   [Table("dummy", Schema = "education")]
+    //   [Table("tableName", Schema = "schemaName")]
     // otherwise, set it up in MyContext
     public class Record
     {

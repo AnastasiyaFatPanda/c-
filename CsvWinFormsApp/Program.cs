@@ -17,31 +17,37 @@ namespace CsvWinFormsApp
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
 
-            LoadingForm loadingForm = new LoadingForm("Trying to connect ot specified Database...", "Connecting to DB");
-
-            // Run the main form initialization asynchronously
-            Task.Run(() =>
+            try
             {
-                CreateDbContext();
+                LoadingMessageForm loadingForm = new LoadingMessageForm("Trying to connect ot specified Database...", "Connecting to DB");
+                string connectionString = ConfigurationHelper.GetConnectionString();
 
-                // Simulate delay for LoadingForm demonstration
-                Task.Delay(1000).Wait();
-                // Once the main form is initialized, close the loading form
-                loadingForm.Invoke(new Action(() => loadingForm.Close()));
-            });
+                Task.Run(() =>
+                {
+                    _context = new MyContext(connectionString);
+                    bool isAvalaible = _context.Database.CanConnect();
 
-            // Show the loading form modally (this blocks the main thread until the form is closed)
-            loadingForm.ShowDialog();
+                    if (isAvalaible)
+                    {
+                        loadingForm.Invoke(new Action(() => loadingForm.Close()));
+                    }
+                    else
+                    {
+                        _context?.Dispose();
+                        ConfigurationHelper.HandleErrorsAndExit();
+                    }
+                });
 
-            // Initialize and run the main form after the loading form is closed
-            MainForm mainForm = new MainForm(_context);
-            Application.Run(mainForm);
-        }
+                // Show the loading form modally (this blocks the main thread until the form is closed)
+                loadingForm.ShowDialog();
 
-        private static void CreateDbContext()
-        {
-            string connectionString = ConfigurationHelper.GetConnectionString();
-            _context = new MyContext(connectionString);
+                MainForm mainForm = new MainForm(_context);
+                Application.Run(mainForm);
+            }
+            catch (Exception ex)
+            {
+                ConfigurationHelper.HandleErrorsAndExit();
+            }
         }
     }
 }

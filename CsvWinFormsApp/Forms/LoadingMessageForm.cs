@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace CsvWinFormsApp
+﻿namespace CsvWinFormsApp
 {
     public partial class LoadingMessageForm : Form
     {
@@ -29,10 +19,10 @@ namespace CsvWinFormsApp
             progressBar.MarqueeAnimationSpeed = 30;
 
             // Configure the form
-            this.Text = title;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.ControlBox = false; // Disable the close button
+            Text = title;
+            StartPosition = FormStartPosition.CenterScreen;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            ControlBox = false; // Disable the close button
         }
 
         // Method to update the message label

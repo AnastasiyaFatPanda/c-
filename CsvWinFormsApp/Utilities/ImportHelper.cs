@@ -1,13 +1,8 @@
 ﻿using CsvHelper;
+using CsvHelper.Configuration;
 using CsvWinFormsApp.Contexts;
 using CsvWinFormsApp.Models;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace CsvWinFormsApp.Utilities
 {
@@ -15,10 +10,9 @@ namespace CsvWinFormsApp.Utilities
     {
         public static async void ImportCsvData(Form form, MyContext _context, Action callback)
         {
-            // Create and configure the OpenFileDialog
-            OpenFileDialog openFileDialog = null;
             form.Invoke((MethodInvoker)(async () =>
-                {  // Create and configure the OpenFileDialog
+                {  
+                    // Create and configure the OpenFileDialog
                     OpenFileDialog openFileDialog = new OpenFileDialog
                     {
                         Title = "Browse Files",
@@ -40,23 +34,32 @@ namespace CsvWinFormsApp.Utilities
                     {
                         // Get the selected file's path
                         string selectedFilePath = openFileDialog.FileName;
-                        int BatchSize = 1000;
+                        int BatchSize = 2500;
                         int addedRecords = 0;
                         var records = new List<Record>();
                         LoadingMessageForm loadingForm = new LoadingMessageForm("Trying to connect to specified Database...", "Import data to DB");
                         loadingForm.Show();
 
+                        // Create a configuration with a semicolon separator
+                        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                        {
+                            Delimiter = ";", // Specify the separator here
+                            HasHeaderRecord = true, // Set to false if your CSV does not have a header
+                        };
+
                         try
                         {
                             using (var reader = new StreamReader(selectedFilePath))
-                            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                            using (var csv = new CsvReader(reader, config))
                             {
-                                // Read the header before reading any fields
-                                await csv.ReadAsync();
+                                // Starting to read the first row
+                                csv.Read();
                                 csv.ReadHeader();
 
-                                while (await csv.ReadAsync())
+                                // Continur file reading
+                                while (csv.Read())
                                 {
+
                                     var record = new Record
                                     {
                                         Id = Guid.NewGuid(),
@@ -89,19 +92,14 @@ namespace CsvWinFormsApp.Utilities
                                 // Close the loading form
                                 loadingForm.Invoke(new Action(() => loadingForm.Close()));
                                 // Show success message
-                                MessageBox.Show($"Inserted {addedRecords} records!");
+                                MessagesHelper.ShowInfoMessage($"Inserted {addedRecords} records!");
                                 callback();
                             }
                         }
                         catch (Exception ex)
                         {
                             loadingForm.Invoke(new Action(() => loadingForm.Close()));
-                            MessageBox.Show(
-                              $"Cannot import file data from the file to database. \n\n Error: \n {ex.Message}",
-                              "Error",
-                              MessageBoxButtons.OK,
-                              MessageBoxIcon.Error
-                            );
+                            MessagesHelper.ShowErrorMessage($"Cannot import file data from the file to database. \n\n Error: \n {ex.Message}");
                         }
                     }
                 })
@@ -117,13 +115,7 @@ namespace CsvWinFormsApp.Utilities
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                  $"Cannot save data. \n\n Error: \n {ex.Message}",
-                  "Error",
-                  MessageBoxButtons.OK,
-                  MessageBoxIcon.Error
-                );
-
+                MessagesHelper.ShowErrorMessage($"Cannot save data. \n\n Error: \n {ex.Message}");
             }
         }
     }

@@ -30,14 +30,27 @@ namespace CsvWinFormsApp
     public partial class MainForm : Form
     {
         private MyContext _context;
-        private char _lastKeyPressed;
+        private char _lastDateKeyPressed;
         private string _datePattern = @"^(19|20)[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$";
 
         public MainForm(MyContext context)
         {
             InitializeComponent();
-            this._context = context;
+            _context = context;
             UpdateFormComponents();
+        }
+
+        // Override the Dispose method
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+
+            _context?.Dispose();
+
+            base.Dispose(disposing);
         }
 
         public int UpdateFormComponents()
@@ -99,7 +112,7 @@ namespace CsvWinFormsApp
 
                 if (records.Count == 0)
                 {
-                    MessageBox.Show("There is no data to export.");
+                    MessagesHelper.ShowWarningMessage("There is no data to export.");
                     return;
                 }
 
@@ -116,7 +129,6 @@ namespace CsvWinFormsApp
                 string filePath = saveFileDialog.FileName;
 
                 // Show the dialog and handle the file selection
-                // CSV format
                 if (showsaveDialog == DialogResult.OK)
                 {
                     ExportHelper.GenerateFile(exportFormat, filePath, records);
@@ -124,8 +136,7 @@ namespace CsvWinFormsApp
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Incorrect filter request. \n\n Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
+                MessagesHelper.ShowErrorMessage($"Incorrect filter request. \n\n Error: {ex.Message}");
             }
         }
 
@@ -133,6 +144,7 @@ namespace CsvWinFormsApp
         {
             string dateString = textBoxDate.Text;
             DateTime filterDate;
+
             try
             {
                 if (!Regex.IsMatch(dateString, _datePattern) && !string.IsNullOrEmpty(dateString))
@@ -155,7 +167,6 @@ namespace CsvWinFormsApp
                 Date = filterDate,
                 City = textBoxCity.Text,
                 Country = textBoxCountry.Text,
-
             };
 
             List<Record> records = _context.GetFilteredEntities(criteria).ToList();
@@ -173,10 +184,15 @@ namespace CsvWinFormsApp
             }
         }
 
+        private async void buttonDeleteDbData_Click(object sender, EventArgs e)
+        {
+            DatabaseHelper.DeleteAllDatabaseData(_context, () => UpdateFormComponents());
+        }
+
         private void textBoxDate_KeyPress(object sender, KeyPressEventArgs e)
         {
             // Store the last key pressed
-            _lastKeyPressed = e.KeyChar;
+            _lastDateKeyPressed = e.KeyChar;
 
             // Allow only digits, backspace characters
             if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back)
@@ -189,7 +205,7 @@ namespace CsvWinFormsApp
         {
             string input = textBoxDate.Text;
 
-            if (input.Length == 0 || _lastKeyPressed == (char)Keys.Back) return;
+            if (input.Length == 0 || _lastDateKeyPressed == (char)Keys.Back) return;
 
             // Format the text to yyyy-MM-dd
             if (input.Length == 4)
@@ -209,26 +225,74 @@ namespace CsvWinFormsApp
 
             if (input.Length == 10 && !Regex.IsMatch(input, _datePattern))
             {
-                MessageBox.Show("Invalid format. Please use yyyy-MM-dd format.");
+                MessagesHelper.ShowErrorMessage("Invalid format. Please use yyyy-MM-dd format.");
             }
 
             textBoxDate.Text = input;
-            textBoxDate.SelectionStart = textBoxDate.Text.Length; // Move cursor to the end
+            // Move cursor to the end
+            textBoxDate.SelectionStart = textBoxDate.Text.Length;
         }
 
-        private async void buttonDeleteDbData_Click(object sender, EventArgs e)
+        private bool TextBoxAllowedKeyPress(KeyPressEventArgs e)
         {
-            DatabaseHelper.DeleteAllDatabaseData(_context, () => UpdateFormComponents());
+            return !char.IsLetter(e.KeyChar) && e.KeyChar != (char)Keys.Back && e.KeyChar != (char)Keys.Space;
+        }
+
+        private void TextBoxCheckMaxLength(TextBox textBox)
+        {
+            const int maxLength = 100;
+
+            if (textBox.Text.Length > maxLength)
+            {
+                textBox.Text = textBox.Text.Substring(0, maxLength);
+                textBox.SelectionStart = maxLength;
+                MessagesHelper.ShowErrorMessage("You cannot enter a string longer than 100 characters!");
+            }
         }
 
         private void textBoxName_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Allow only digits, backspace characters
-            if (!char.IsLetter(e.KeyChar) && e.KeyChar != (char)Keys.Back && e.KeyChar != (char)Keys.Space)
+            // Allow only letters, space and backspace
+            if (TextBoxAllowedKeyPress(e))
             {
-                e.Handled = true; // Ignore the key press
+                e.Handled = true;
             }
+
+            TextBoxCheckMaxLength(textBoxName);
         }
 
+        private void textBoxSurname_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Allow only letters, space and backspace
+            if (TextBoxAllowedKeyPress(e))
+            {
+                e.Handled = true;
+            }
+
+
+            TextBoxCheckMaxLength(textBoxSurname);
+        }
+
+        private void textBoxCity_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Allow only letters, space and backspace
+            if (TextBoxAllowedKeyPress(e))
+            {
+                e.Handled = true;
+            }
+
+            TextBoxCheckMaxLength(textBoxCity);
+        }
+
+        private void textBoxCountry_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Allow only letters, space and backspace
+            if (TextBoxAllowedKeyPress(e))
+            {
+                e.Handled = true;
+            }
+
+            TextBoxCheckMaxLength(textBoxCountry);
+        }
     }
 }
