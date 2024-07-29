@@ -230,7 +230,7 @@ namespace CsvWinFormsApp
             }
         }
 
-        private void textBoxName_KeyPress(object sender, KeyPressEventArgs e)
+        private void CheckTextBoxValue(KeyPressEventArgs e, TextBox textBox)
         {
             // Allow only letters, space and backspace
             if (TextBoxAllowedKeyPress(e))
@@ -238,52 +238,32 @@ namespace CsvWinFormsApp
                 e.Handled = true;
             }
 
-            TextBoxCheckMaxLength(textBoxName);
+            TextBoxCheckMaxLength(textBox);
+        }
+
+        private void textBoxName_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            CheckTextBoxValue(e, textBoxName);
         }
 
         private void textBoxSecondName_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Allow only letters, space and backspace
-            if (TextBoxAllowedKeyPress(e))
-            {
-                e.Handled = true;
-            }
-
-            TextBoxCheckMaxLength(textBoxSecondName);
+            CheckTextBoxValue(e, textBoxSecondName);
         }
 
         private void textBoxSurname_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Allow only letters, space and backspace
-            if (TextBoxAllowedKeyPress(e))
-            {
-                e.Handled = true;
-            }
-
-
-            TextBoxCheckMaxLength(textBoxSurname);
+            CheckTextBoxValue(e, textBoxSurname);
         }
 
         private void textBoxCity_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Allow only letters, space and backspace
-            if (TextBoxAllowedKeyPress(e))
-            {
-                e.Handled = true;
-            }
-
-            TextBoxCheckMaxLength(textBoxCity);
+            CheckTextBoxValue(e, textBoxCity);
         }
 
         private void textBoxCountry_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Allow only letters, space and backspace
-            if (TextBoxAllowedKeyPress(e))
-            {
-                e.Handled = true;
-            }
-
-            TextBoxCheckMaxLength(textBoxCountry);
+            CheckTextBoxValue(e, textBoxCountry);
         }
     }
 }
