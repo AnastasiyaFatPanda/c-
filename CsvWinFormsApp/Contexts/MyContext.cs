@@ -44,6 +44,11 @@ namespace CsvWinFormsApp.Contexts
                 query = query.Where(e => e.Name.Contains(criteria.Name));
             }
 
+            if (!string.IsNullOrEmpty(criteria.SecondName))
+            {
+                query = query.Where(e => e.Name.Contains(criteria.SecondName));
+            }
+
             if (!string.IsNullOrEmpty(criteria.Surname))
             {
                 query = query.Where(e => e.Surname.Contains(criteria.Surname));

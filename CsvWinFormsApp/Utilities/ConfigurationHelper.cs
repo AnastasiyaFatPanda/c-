@@ -46,9 +46,9 @@ namespace CsvWinFormsApp.Utilities
             return $"{catalogName}.{schemaName}.{databaseName}";
         }
 
-        public static void HandleErrorsAndExit()
+        public static void HandleErrorsAndExit(Exception ex = null)
         {
-            var result = MessagesHelper.ShowErrorMessage("Cannot run the app. Please, check your appsettings.json file");
+            var result = MessagesHelper.ShowErrorMessage($"Cannot run the app. Please, check your appsettings.json file.\n {ex?.Message}");
 
             // Close the app after the error message
             if (result != DialogResult.None)

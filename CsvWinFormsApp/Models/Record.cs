@@ -7,6 +7,7 @@
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string SecondName { get; set; }
         public string Surname { get; set; }
         public DateTime Date { get; set; }
         public string City { get; set; }
@@ -14,7 +15,7 @@
 
         public override string ToString()
         {
-            return $"{Name} {Surname} {Date} {City} {Country}";
+            return $"{Name} {SecondName} {Surname} {Date} {City} {Country}";
         }
     }
 

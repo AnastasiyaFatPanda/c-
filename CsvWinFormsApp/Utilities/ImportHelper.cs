@@ -63,11 +63,12 @@ namespace CsvWinFormsApp.Utilities
                                     var record = new Record
                                     {
                                         Id = Guid.NewGuid(),
-                                        Name = csv.GetField<string>("name"),
-                                        Surname = csv.GetField<string>("surname"),
-                                        Date = csv.GetField<DateTime>("date"),
-                                        City = csv.GetField<string>("city"),
-                                        Country = csv.GetField<string>("country")
+                                        Name = csv.GetField<string>("FirstName"),
+                                        SecondName = csv.GetField<string>("SecondName"),
+                                        Surname = csv.GetField<string>("SurName"),
+                                        Date = csv.GetField<DateTime>("Date"),
+                                        City = csv.GetField<string>("City"),
+                                        Country = csv.GetField<string>("Country")
                                     };
 
                                     records.Add(record);

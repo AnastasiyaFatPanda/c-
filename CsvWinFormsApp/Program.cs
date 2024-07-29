@@ -46,7 +46,7 @@ namespace CsvWinFormsApp
             }
             catch (Exception ex)
             {
-                ConfigurationHelper.HandleErrorsAndExit();
+                ConfigurationHelper.HandleErrorsAndExit(ex);
             }
         }
     }

@@ -91,10 +91,11 @@ namespace CsvWinFormsApp.Utilities
                 // Add header row
                 worksheet.Cell(1, 1).Value = "Id";
                 worksheet.Cell(1, 2).Value = "Name";
-                worksheet.Cell(1, 3).Value = "Surname";
-                worksheet.Cell(1, 4).Value = "Date";
-                worksheet.Cell(1, 5).Value = "City";
-                worksheet.Cell(1, 6).Value = "Country";
+                worksheet.Cell(1, 3).Value = "SecondName";
+                worksheet.Cell(1, 4).Value = "Surname";
+                worksheet.Cell(1, 5).Value = "Date";
+                worksheet.Cell(1, 6).Value = "City";
+                worksheet.Cell(1, 7).Value = "Country";
 
                 // Add data rows
                 for (int i = 0; i < records.Count; i++)
@@ -118,10 +119,11 @@ namespace CsvWinFormsApp.Utilities
         {
             XElement root = new XElement("TestProgram",
                     records.Select(d =>
-                        new XElement("Record", new XAttribute("id", d.Id),
+                         new XElement("Record",
                             new XElement("Date", d.Date),
-                            new XElement("FirstName", d.Name),
-                            new XElement("SurName", d.Surname),
+                            new XElement("Name", d.Name),
+                            new XElement("SecondName", d.SecondName),
+                            new XElement("Surname", d.Surname),
                             new XElement("City", d.City),
                             new XElement("Country", d.Country)
                         )

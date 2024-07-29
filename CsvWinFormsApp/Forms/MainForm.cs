@@ -1,28 +1,7 @@
-using System;
-using System.Data;
-using System.Windows.Forms;
-using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI;
-using Microsoft.Data.SqlClient;
-using System.IO;
-using System.Diagnostics;
-using ClosedXML.Excel;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
-using System.Drawing;
-using Microsoft.Extensions.FileSystemGlobbing;
-using CsvHelper;
-using System.Globalization;
-using MySqlX.XDevAPI.Common;
 using System.Text.RegularExpressions;
-using DocumentFormat.OpenXml.InkML;
-using Microsoft.EntityFrameworkCore;
 using CsvWinFormsApp.Models;
 using CsvWinFormsApp.Contexts;
 using CsvWinFormsApp.Utilities;
-using System.Xml.Linq;
 using CsvWinFormsApp.Enums;
 
 namespace CsvWinFormsApp
@@ -163,6 +142,7 @@ namespace CsvWinFormsApp
             var criteria = new FilterCriteria
             {
                 Name = textBoxName.Text,
+                SecondName = textBoxSecondName.Text,
                 Surname = textBoxSurname.Text,
                 Date = filterDate,
                 City = textBoxCity.Text,
@@ -259,6 +239,17 @@ namespace CsvWinFormsApp
             }
 
             TextBoxCheckMaxLength(textBoxName);
+        }
+
+        private void textBoxSecondName_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Allow only letters, space and backspace
+            if (TextBoxAllowedKeyPress(e))
+            {
+                e.Handled = true;
+            }
+
+            TextBoxCheckMaxLength(textBoxSecondName);
         }
 
         private void textBoxSurname_KeyPress(object sender, KeyPressEventArgs e)

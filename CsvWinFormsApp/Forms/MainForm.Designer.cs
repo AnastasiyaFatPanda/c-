@@ -46,6 +46,7 @@
             buttonDeleteDbData = new Button();
             buttonClearFilters = new Button();
             panel1 = new Panel();
+            textBoxSecondName = new TextBox();
             groupBox.SuspendLayout();
             panel1.SuspendLayout();
             SuspendLayout();
@@ -105,7 +106,7 @@
             textBoxName.Location = new Point(20, 77);
             textBoxName.Name = "textBoxName";
             textBoxName.PlaceholderText = "Name";
-            textBoxName.Size = new Size(317, 27);
+            textBoxName.Size = new Size(154, 27);
             textBoxName.TabIndex = 5;
             textBoxName.KeyPress += textBoxName_KeyPress;
             // 
@@ -168,6 +169,7 @@
             // groupBox
             // 
             groupBox.BackColor = Color.FromArgb(216, 228, 231);
+            groupBox.Controls.Add(textBoxSecondName);
             groupBox.Controls.Add(labelInfo3);
             groupBox.Controls.Add(labelInfo2);
             groupBox.Controls.Add(labelInfo1);
@@ -260,6 +262,17 @@
             panel1.Size = new Size(558, 39);
             panel1.TabIndex = 12;
             // 
+            // textBoxSecondName
+            // 
+            textBoxSecondName.BackColor = Color.FloralWhite;
+            textBoxSecondName.ForeColor = SystemColors.ControlDarkDark;
+            textBoxSecondName.Location = new Point(180, 77);
+            textBoxSecondName.Name = "textBoxSecondName";
+            textBoxSecondName.PlaceholderText = "Second Name";
+            textBoxSecondName.Size = new Size(157, 27);
+            textBoxSecondName.TabIndex = 17;
+            textBoxSecondName.KeyPress += textBoxSecondName_KeyPress;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -300,5 +313,6 @@
         private Label labelInfo1;
         private Label labelInfo3;
         private Label labelInfo2;
+        private TextBox textBoxSecondName;
     }
 }
