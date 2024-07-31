@@ -58,6 +58,7 @@ namespace CsvWinFormsApp
 
         private void ChangeFieldEnalability(bool enable)
         {
+            ClearFilters();
             groupBox.Enabled = enable;
 
             foreach (Control control in groupBox.Controls)
@@ -155,6 +156,11 @@ namespace CsvWinFormsApp
 
         private void buttonClearFilters_Click(object sender, EventArgs e)
         {
+            ClearFilters();
+        }
+
+        private void ClearFilters()
+        {
             radioButtonCsv.Checked = true;
 
             foreach (Control control in groupBox.Controls)
@@ -164,7 +170,7 @@ namespace CsvWinFormsApp
             }
         }
 
-        private async void buttonDeleteDbData_Click(object sender, EventArgs e)
+        private void buttonDeleteDbData_Click(object sender, EventArgs e)
         {
             DatabaseHelper.DeleteAllDatabaseData(_context, () => UpdateFormComponents());
         }
