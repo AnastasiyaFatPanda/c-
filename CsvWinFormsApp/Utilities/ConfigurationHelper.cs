@@ -10,7 +10,6 @@ namespace CsvWinFormsApp.Utilities
         static ConfigurationHelper()
         {
             Configuration = new ConfigurationBuilder()
-                .SetBasePath("C:\\Users\\jagfd\\Documents\\GitHub\\CsvWinFormsApp\\CsvWinFormsApp")
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
             _configurationDatabaseInfo = Configuration.GetSection("DatabaseInfo");
