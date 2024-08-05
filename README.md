@@ -9,3 +9,18 @@ C# course
 	dotnet add package Newtonsoft.Json
 
 	Install-Package Newtonsoft.Json
+
+
+### Config File Example
+Create 'appsettings.json` file at the root of the project
+
+		{
+			"ConnectionStrings": {
+				"DefaultConnection": "..."
+			},
+			"DatabaseInfo": {
+				"Catalog": "...",
+				"Schema": "...",
+				"DB": "..."
+			}
+		}
